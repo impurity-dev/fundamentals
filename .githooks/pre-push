@@ -1,3 +1,4 @@
 #!/bin/sh
 echo "🧪 Running tests..."
 deno task test
+echo "✅ Test complete!"
