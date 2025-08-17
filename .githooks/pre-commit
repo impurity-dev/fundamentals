@@ -1,10 +1,11 @@
 #!/bin/sh
-echo "✨ Formatting and linting with Deno..."
+echo "✨ Formatting..."
 # Auto-format files
 deno fmt
+echo "🔍 Linting..."
 # Auto-fix lint issues where possible
 deno lint --fix
-echo "✅ Code fixed and ready to commit!"
+echo "✅ Code fixed!"
 # Add any changes caused by fixes
 git add -u
-echo "✅ All fixed and staged!"
+echo "🚀 All changes staged!"
