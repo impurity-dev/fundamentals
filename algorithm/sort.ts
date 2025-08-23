@@ -1,6 +1,5 @@
 export type Comparator<T> = (a: T, b: T) => number;
 
-
 /**
  * Sorts an array using the bubble sort algorithm and returns a new sorted array.
  *

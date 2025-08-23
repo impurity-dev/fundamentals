@@ -4,6 +4,7 @@
     "license": "MIT",
     "exports": "./mod.ts",
     "tasks": {
+        "setup": "deno run -A setup.ts",
         "dev": "deno run --watch main.ts",
         "test": "deno test"
     },
