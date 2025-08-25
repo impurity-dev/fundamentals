@@ -1,4 +1,4 @@
-export type Comparator<T> = (a: T, b: T) => number;
+import type { Sorter } from '../shared/utils.ts';
 
 /**
  * Sorts an array using the bubble sort algorithm and returns a new sorted array.
@@ -15,7 +15,7 @@ export type Comparator<T> = (a: T, b: T) => number;
  */
 export function bubbleSort<T>(
     arr: T[],
-    comparator: Comparator<T> = (a, b) => (a > b ? 1 : a < b ? -1 : 0),
+    comparator: Sorter<T> = (a, b) => (a > b ? 1 : a < b ? -1 : 0),
 ): T[] {
     arr = [...arr];
     if (arr.length === 0) return arr;
