@@ -1,4 +1,5 @@
 import { SinglyLinkedList } from '../linked-list/singly.ts';
+import type { Comparator } from '../shared/mod.ts';
 import type { IStack } from './shared.ts';
 
 export class LinkedStack<T> implements IStack<T> {
@@ -28,7 +29,7 @@ export class LinkedStack<T> implements IStack<T> {
         return this.list.get(0);
     }
 
-    contains(value: T): boolean {
-        return this.list.contains(value);
+    contains(value: T, comparator: Comparator<T> = (a: T, b: T) => a === b): boolean {
+        return this.list.contains(value, comparator);
     }
 }

@@ -1,9 +1,4 @@
-export class EmptyStackError extends Error {
-    constructor(message?: string) {
-        super(message || 'Cannot pop from an empty stack');
-        Object.setPrototypeOf(this, EmptyStackError.prototype);
-    }
-}
+import type { Comparator } from '../shared/mod.ts';
 
 export interface IStack<T> {
     peek(): T | undefined;
@@ -12,5 +7,5 @@ export interface IStack<T> {
     isEmpty(): boolean;
     size(): number;
     clear(): void;
-    contains(value: T): boolean;
+    contains(value: T, comparator?: Comparator<T>): boolean;
 }

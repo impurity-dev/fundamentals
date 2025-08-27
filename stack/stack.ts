@@ -1,4 +1,5 @@
-import { EmptyStackError, type IStack } from './shared.ts';
+import type { Comparator } from '../shared/mod.ts';
+import type { IStack } from './shared.ts';
 
 export class Stack<T> implements IStack<T> {
     constructor(private values: Array<T> = []) {}
@@ -15,7 +16,10 @@ export class Stack<T> implements IStack<T> {
         this.values = [];
     }
 
-    peek(): T {
+    peek(): T | undefined {
+        if (this.values.length === 0) {
+            return undefined;
+        }
         return this.values[this.values.length - 1];
     }
 
@@ -23,14 +27,11 @@ export class Stack<T> implements IStack<T> {
         this.values.push(value);
     }
 
-    pop(): T {
-        if (this.isEmpty()) {
-            throw new EmptyStackError();
-        }
-        return this.values.pop()!;
+    pop(): T | undefined {
+        return this.values.pop();
     }
 
-    contains(input: T): boolean {
-        return this.values.includes(input) != undefined;
+    contains(input: T, comparator: Comparator<T> = (a: T, b: T) => a === b): boolean {
+        return this.values.some((value) => comparator(input, value));
     }
 }
