@@ -84,7 +84,7 @@ export interface ILinkedList<T> extends Iterable<T> {
      * Returns an iterator for iterating over the elements of the linked list in forward order.
      * @returns An iterator for the linked list.
      */
-    [Symbol.iterator](): Iterator<T>;
+    [Symbol.iterator](): IterableIterator<T>;
 
     /**
      * Returns an iterator for iterating over the elements of the linked list in reverse order.

@@ -149,18 +149,12 @@ export class DoublyLinkedList<T> implements ILinkedList<T> {
     }
 
     // Iterator support (for...of) forward
-    [Symbol.iterator](): Iterator<T> {
-        let current = this.head;
-        return {
-            next(): IteratorResult<T> {
-                if (current) {
-                    const value = current.value;
-                    current = current.next;
-                    return { value, done: false };
-                }
-                return { value: undefined, done: true };
-            },
-        };
+    *[Symbol.iterator](): IterableIterator<T> {
+        let current = this.tail;
+        while (current) {
+            yield current.value;
+            current = current.next;
+        }
     }
 
     *reverseIterator(): IterableIterator<T> {

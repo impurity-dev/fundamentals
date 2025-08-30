@@ -11,8 +11,12 @@ export class SinglyLinkedList<T> implements ILinkedList<T> {
     private tail: Node<T> | undefined = undefined;
     private length: number = 0;
 
+    constructor(items: Array<T> = []) {
+        items.forEach((i) => this.insertAtTail(i));
+    }
+
     insertAtHead(value: T): void {
-        const node = { value, next: this.head };
+        const node: Node<T> = { value, next: this.head };
         this.head = node;
         if (!this.tail) {
             this.tail = node;
@@ -104,6 +108,9 @@ export class SinglyLinkedList<T> implements ILinkedList<T> {
     }
 
     get(index: number): T | undefined {
+        if (index < 0 || index >= this.length) {
+            throw new RangeError('Index out of bounds');
+        }
         let current = this.head;
         let currentIndex = 0;
         while (current) {
@@ -145,35 +152,23 @@ export class SinglyLinkedList<T> implements ILinkedList<T> {
         return array;
     }
 
-    [Symbol.iterator](): Iterator<T> {
+    *[Symbol.iterator](): IterableIterator<T> {
         let current = this.head;
-        return {
-            next(): IteratorResult<T> {
-                if (current) {
-                    const { value } = current;
-                    current = current.next;
-                    return { value, done: false };
-                } else {
-                    return { value: undefined, done: true };
-                }
-            },
-        };
+        while (current) {
+            yield current.value;
+            current = current.next;
+        }
     }
 
-    reverseIterator(): IterableIterator<T> {
-        const values: T[] = this.toArray();
-        let index = values.length - 1;
-
-        return {
-            [Symbol.iterator]() {
-                return this;
-            },
-            next(): IteratorResult<T> {
-                if (index >= 0) {
-                    return { value: values[index--], done: false };
-                }
-                return { value: undefined, done: true };
-            },
-        };
+    *reverseIterator(): IterableIterator<T> {
+        const values: T[] = [];
+        let current = this.head;
+        while (current) {
+            values.push(current.value);
+            current = current.next;
+        }
+        for (let i = values.length - 1; i >= 0; i--) {
+            yield values[i];
+        }
     }
 }

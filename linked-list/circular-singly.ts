@@ -154,36 +154,29 @@ export class CircularSinglyLinkedList<T> implements ILinkedList<T> {
         return array;
     }
 
-    [Symbol.iterator](): Iterator<T> {
+    *[Symbol.iterator](): IterableIterator<T> {
+        if (!this.head) return;
         let current = this.head;
-        let currentIndex = 0;
-        const size = this.length;
-        return {
-            next(): IteratorResult<T> {
-                if (!current || currentIndex >= size) {
-                    return { value: undefined, done: true };
-                }
-                const { value } = current;
-                current = current.next;
-                currentIndex++;
-                return { value, done: false };
-            },
-        };
+        let traversed = 0;
+        while (traversed < this.length) {
+            yield current.value;
+            current = current.next!;
+            traversed++;
+        }
     }
 
     *reverseIterator(): IterableIterator<T> {
-        const values: T[] = this.toArray();
-        let index = values.length - 1;
-        return {
-            [Symbol.iterator]() {
-                return this;
-            },
-            next(): IteratorResult<T> {
-                if (index >= 0) {
-                    return { value: values[index--], done: false };
-                }
-                return { value: undefined, done: true };
-            },
-        };
+        if (!this.head) return;
+        const values: T[] = [];
+        let current = this.head;
+        let traversed = 0;
+        while (traversed < this.length) {
+            values.push(current.value);
+            current = current.next!;
+            traversed++;
+        }
+        for (let i = values.length - 1; i >= 0; i--) {
+            yield values[i];
+        }
     }
 }
