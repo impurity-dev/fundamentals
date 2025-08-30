@@ -59,6 +59,10 @@ export class FifoQueue<T> implements IQueue<T> {
             },
         };
     }
+
+    toString(): string {
+        return `FIFOQueue { ${this.queue.join(', ')} }`;
+    }
 }
 
 export class BoundedFifoQueue<T> extends FifoQueue<T> implements IBoundedQueue<T> {

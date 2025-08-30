@@ -12,6 +12,7 @@ export interface IQueue<T> {
     contains(item: T, comparator?: Comparator<T>): boolean;
     [Symbol.iterator](): Iterator<T>;
     reverseIterator(): IterableIterator<T>;
+    toString(): string;
 }
 
 export interface IBoundedQueue<T> extends IQueue<T> {

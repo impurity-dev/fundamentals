@@ -1,49 +1,44 @@
 import type { Comparator } from '../shared/utils.ts';
-import type { IBoundedQueue } from './shared.ts';
+import type { ILinkedList } from './mod.ts';
 
-export class CircularQueue<T> implements IBoundedQueue<T> {
-    constructor(private readonly maxSize: number) {}
-
-    enqueue(item: T): void {
+export class SkipLinkedList<T> implements ILinkedList<T> {
+    insertAtHead(value: T): void {
         throw new Error('Method not implemented.');
     }
-    dequeue(): T | undefined {
+    insertAtTail(value: T): void {
         throw new Error('Method not implemented.');
     }
-    peek(): T | undefined {
+    insertAt(index: number, value: T): void {
         throw new Error('Method not implemented.');
     }
-    back(): T | undefined {
+    removeAtHead(): T | undefined {
         throw new Error('Method not implemented.');
     }
-    size(): number {
+    removeAtTail(): T | undefined {
+        throw new Error('Method not implemented.');
+    }
+    removeAt(index: number): T | undefined {
+        throw new Error('Method not implemented.');
+    }
+    get(index: number): T | undefined {
+        throw new Error('Method not implemented.');
+    }
+    contains(value: T, comparator?: Comparator<T> | undefined): boolean {
         throw new Error('Method not implemented.');
     }
     isEmpty(): boolean {
         throw new Error('Method not implemented.');
     }
-    clear(): void {
+    size(): number {
         throw new Error('Method not implemented.');
     }
     toArray(): T[] {
         throw new Error('Method not implemented.');
     }
-    contains(item: T, comparator?: Comparator<T> | undefined): boolean {
-        throw new Error('Method not implemented.');
-    }
-    capacity(): number {
-        throw new Error('Method not implemented.');
-    }
-    isFull(): boolean {
-        throw new Error('Method not implemented.');
-    }
     reverseIterator(): IterableIterator<T> {
         throw new Error('Method not implemented.');
     }
-    [Symbol.iterator](): Iterator<T> {
+    [Symbol.iterator](): Iterator<T, any, any> {
         throw new Error('Method not implemented.');
-    }
-    toString(): string {
-        return `CircularQueue { ${this.queue.join(', ')} }`;
     }
 }
