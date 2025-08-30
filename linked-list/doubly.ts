@@ -158,7 +158,7 @@ export class DoublyLinkedList<T> implements ILinkedList<T> {
                     current = current.next;
                     return { value, done: false };
                 }
-                return { value: undefined as any, done: true };
+                return { value: undefined, done: true };
             },
         };
     }
