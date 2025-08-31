@@ -4,8 +4,9 @@ import fc from 'fast-check';
 import { assertThrows } from '@std/assert/throws';
 
 const verbose = true;
+const maxLength = 50;
 
-const safeAny = fc.oneof(
+const _safeAny = fc.oneof(
     fc.string(),
     fc.boolean(),
     fc.constant(null),
@@ -13,10 +14,18 @@ const safeAny = fc.oneof(
     fc.integer(),
     fc.float().filter((n) => !Number.isNaN(n)),
     fc.object({ maxDepth: 2 }),
-    fc.array(fc.string(), { maxLength: 5 }),
 );
-type SafeAny = string | boolean | null | undefined | number | string[] | Record<string, unknown>;
-const maxLength = 50;
+const safeAny = fc.oneof(
+    _safeAny,
+    fc.array(_safeAny, { maxLength: 5 }),
+);
+type _SafeAny = string | boolean | null | undefined | number | Record<string, unknown>;
+type SafeAny = _SafeAny | _SafeAny[];
+const comparators = [
+    (a: SafeAny, b: SafeAny) => a === b, // strict equality
+    (a: SafeAny, b: SafeAny) => JSON.stringify(a) === JSON.stringify(b), // deep-ish
+    (a: SafeAny, b: SafeAny) => typeof a === 'number' && typeof b === 'number' && Math.abs(a - b) < 1e-6, // fuzzy numbers
+];
 
 Deno.test('SinglyLinkedList', async (t) => {
     await t.step('should initialize', () => {
@@ -70,6 +79,7 @@ Deno.test('SinglyLinkedList', async (t) => {
                     const expected = [...initial];
                     if (index < 0 || index > expected.length) {
                         assertThrows(() => actual.insertAt(index, value), 'insertAt did not throw when out of bounds');
+                        assertAll(actual, expected);
                     } else {
                         actual.insertAt(index, value);
                         expected.splice(index, 0, value);
@@ -123,6 +133,89 @@ Deno.test('SinglyLinkedList', async (t) => {
                     }
                 }
             }),
+            { verbose },
+        );
+    });
+
+    await t.step('should remove at', () => {
+        fc.assert(
+            fc.property(
+                fc.array(safeAny, { maxLength }),
+                fc.integer(),
+                (initial, index) => {
+                    const actual = new SinglyLinkedList<SafeAny>(initial);
+                    if (index < 0 || index >= initial.length) {
+                        assertThrows(() => actual.removeAt(index), 'removeAt did not throw when out of bounds');
+                        assertAll(actual, initial);
+                    } else {
+                        const expected = [...initial].slice();
+                        const actualRemoved = actual.removeAt(index);
+                        const expectedRemove = expected.splice(index, 1)[0];
+                        assertEquals(actualRemoved, expectedRemove);
+                        assertAll(actual, expected);
+                    }
+                },
+            ),
+            { verbose },
+        );
+    });
+
+    await t.step('should get', () => {
+        fc.assert(
+            fc.property(
+                fc.array(safeAny, { maxLength }),
+                fc.integer(),
+                (initial, index) => {
+                    const actual = new SinglyLinkedList<SafeAny>(initial);
+                    const expected = [...initial];
+                    if (index < 0 || index >= expected.length) {
+                        assertThrows(() => actual.get(index), 'get out of range did not throw');
+                    } else {
+                        const expectedGet = initial[index];
+                        const actualGet = actual.get(index);
+                        assertEquals(actualGet, expectedGet);
+                    }
+                    assertAll(actual, expected);
+                },
+            ),
+            { verbose },
+        );
+    });
+
+    await t.step('should contains', () => {
+        fc.assert(
+            fc.property(
+                fc.array(safeAny, { maxLength }),
+                safeAny,
+                (initial, value) => {
+                    const actual = new SinglyLinkedList<SafeAny>(initial);
+                    const expected = [...initial];
+                    const expectedContains = initial.includes(value);
+                    const actualContains = actual.contains(value);
+                    assertEquals(actualContains, expectedContains);
+                    assertAll(actual, expected);
+                },
+            ),
+            { verbose },
+        );
+    });
+
+    await t.step('should contains with custom comparator', () => {
+        fc.assert(
+            fc.property(
+                fc.array(safeAny, { maxLength }),
+                safeAny,
+                fc.integer({ min: 0, max: comparators.length - 1 }),
+                (initial, value, comparatorIndex) => {
+                    const comparator = comparators[comparatorIndex];
+                    const actual = new SinglyLinkedList<SafeAny>([...initial]);
+                    const expected = [...initial];
+                    const expectedContains = initial.some((cur) => comparator(cur, value));
+                    const actualContains = actual.contains(value, comparator);
+                    assertEquals(actualContains, expectedContains, 'custom comparator contains not equal');
+                    assertAll(actual, expected);
+                },
+            ),
             { verbose },
         );
     });
