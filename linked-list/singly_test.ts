@@ -26,11 +26,13 @@ const comparators = [
     (a: SafeAny, b: SafeAny) => JSON.stringify(a) === JSON.stringify(b), // deep-ish
     (a: SafeAny, b: SafeAny) => typeof a === 'number' && typeof b === 'number' && Math.abs(a - b) < 1e-6, // fuzzy numbers
 ];
+const safeArray = fc.array(safeAny, { maxLength });
+const indices = fc.integer({ min: -1, max: maxLength + 1 });
 
 Deno.test('SinglyLinkedList', async (t) => {
     await t.step('should initialize', () => {
         fc.assert(
-            fc.property(fc.array(safeAny, { maxLength }), (items) => {
+            fc.property(safeArray, (items) => {
                 const actual = new SinglyLinkedList<SafeAny>(items);
 
                 const expected = [...items];
@@ -42,7 +44,7 @@ Deno.test('SinglyLinkedList', async (t) => {
 
     await t.step('should insert at head', () => {
         fc.assert(
-            fc.property(fc.array(safeAny, { maxLength }), fc.array(safeAny, { maxLength }), (inputs, initial) => {
+            fc.property(safeArray, safeArray, (inputs, initial) => {
                 const actual = new SinglyLinkedList<SafeAny>(initial);
 
                 inputs.forEach((input) => actual.insertAtHead(input));
@@ -56,7 +58,7 @@ Deno.test('SinglyLinkedList', async (t) => {
 
     await t.step('should insert at tail', () => {
         fc.assert(
-            fc.property(fc.array(safeAny, { maxLength }), fc.array(safeAny, { maxLength }), (inputs, initial) => {
+            fc.property(safeArray, safeArray, (inputs, initial) => {
                 const actual = new SinglyLinkedList<SafeAny>(initial);
 
                 inputs.forEach((input) => actual.insertAtTail(input));
@@ -71,8 +73,8 @@ Deno.test('SinglyLinkedList', async (t) => {
     await t.step('should insert at', () => {
         fc.assert(
             fc.property(
-                fc.array(safeAny, { maxLength }),
-                fc.integer(),
+                safeArray,
+                indices,
                 safeAny,
                 (initial, index, value) => {
                     const actual = new SinglyLinkedList<SafeAny>(initial);
@@ -93,7 +95,7 @@ Deno.test('SinglyLinkedList', async (t) => {
 
     await t.step('should remove at head', () => {
         fc.assert(
-            fc.property(fc.array(safeAny, { maxLength }), fc.integer({ min: 1, max: 25 }), (initial, numberOfRemoves) => {
+            fc.property(safeArray, fc.integer({ min: 1, max: 25 }), (initial, numberOfRemoves) => {
                 const actual = new SinglyLinkedList<SafeAny>(initial);
 
                 const expected: Array<SafeAny> = [...initial];
@@ -116,7 +118,7 @@ Deno.test('SinglyLinkedList', async (t) => {
 
     await t.step('should remove at tail', () => {
         fc.assert(
-            fc.property(fc.array(safeAny, { maxLength }), fc.integer({ min: 1, max: 25 }), (initial, numberOfRemoves) => {
+            fc.property(safeArray, fc.integer({ min: 1, max: 25 }), (initial, numberOfRemoves) => {
                 const actual = new SinglyLinkedList<SafeAny>(initial);
 
                 const expected: Array<SafeAny> = [...initial];
@@ -140,8 +142,8 @@ Deno.test('SinglyLinkedList', async (t) => {
     await t.step('should remove at', () => {
         fc.assert(
             fc.property(
-                fc.array(safeAny, { maxLength }),
-                fc.integer(),
+                safeArray,
+                indices,
                 (initial, index) => {
                     const actual = new SinglyLinkedList<SafeAny>(initial);
                     if (index < 0 || index >= initial.length) {
@@ -163,8 +165,8 @@ Deno.test('SinglyLinkedList', async (t) => {
     await t.step('should get', () => {
         fc.assert(
             fc.property(
-                fc.array(safeAny, { maxLength }),
-                fc.integer(),
+                safeArray,
+                indices,
                 (initial, index) => {
                     const actual = new SinglyLinkedList<SafeAny>(initial);
                     const expected = [...initial];
@@ -185,7 +187,7 @@ Deno.test('SinglyLinkedList', async (t) => {
     await t.step('should contains', () => {
         fc.assert(
             fc.property(
-                fc.array(safeAny, { maxLength }),
+                safeArray,
                 safeAny,
                 (initial, value) => {
                     const actual = new SinglyLinkedList<SafeAny>(initial);
@@ -203,7 +205,7 @@ Deno.test('SinglyLinkedList', async (t) => {
     await t.step('should contains with custom comparator', () => {
         fc.assert(
             fc.property(
-                fc.array(safeAny, { maxLength }),
+                safeArray,
                 safeAny,
                 fc.integer({ min: 0, max: comparators.length - 1 }),
                 (initial, value, comparatorIndex) => {
@@ -232,4 +234,5 @@ const assertAll = (actual: SinglyLinkedList<SafeAny>, expected: Array<SafeAny>) 
         assertEquals(actual.contains(item), true, 'contains does not match');
         assertEquals(actual.get(index), item, 'get does not match');
     });
+    assertEquals(actual, actual.clone());
 };

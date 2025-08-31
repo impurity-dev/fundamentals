@@ -25,7 +25,7 @@ export class SinglyLinkedList<T> implements ILinkedList<T> {
     }
 
     insertAtTail(value: T): void {
-        const node: Node<T> = { value };
+        const node: Node<T> = { value, next: undefined };
         if (!this.head) {
             this.head = node;
             this.tail = node;
@@ -120,7 +120,6 @@ export class SinglyLinkedList<T> implements ILinkedList<T> {
             current = current.next;
             currentIndex++;
         }
-        return undefined;
     }
 
     contains(value: T, comparator: Comparator<T> = (a: T, b: T) => a === b): boolean {
