@@ -1,6 +1,7 @@
 import { assertEquals } from '@std/assert/equals';
 import { SinglyLinkedList } from './singly.ts';
 import fc from 'fast-check';
+import { assertThrows } from '@std/assert/throws';
 
 const verbose = true;
 
@@ -21,17 +22,10 @@ Deno.test('SinglyLinkedList', async (t) => {
     await t.step('should initialize', () => {
         fc.assert(
             fc.property(fc.array(safeAny, { maxLength }), (items) => {
-                const list = new SinglyLinkedList<SafeAny>(items);
+                const actual = new SinglyLinkedList<SafeAny>(items);
 
-                assertEquals(list.size(), items.length, 'size does not match');
-                assertEquals(list.isEmpty(), list.size() === 0, 'isEmpty does not match');
-                assertEquals(list.toArray().length, items.length, 'toArray does not match');
-                assertEquals(Array.from([...list]), items, 'iterator does not match');
-                assertEquals(Array.from([...list.reverseIterator()]), [...items].reverse(), 'reverseIterator does not match');
-                items.forEach((item, index) => {
-                    assertEquals(list.contains(item), true, 'contains does not match');
-                    assertEquals(list.get(index), item, 'get does not match');
-                });
+                const expected = [...items];
+                assertAll(actual, expected);
             }),
             { verbose },
         );
@@ -40,20 +34,12 @@ Deno.test('SinglyLinkedList', async (t) => {
     await t.step('should insert at head', () => {
         fc.assert(
             fc.property(fc.array(safeAny, { maxLength }), fc.array(safeAny, { maxLength }), (inputs, initial) => {
-                const list = new SinglyLinkedList<SafeAny>(initial);
+                const actual = new SinglyLinkedList<SafeAny>(initial);
 
-                inputs.forEach((input) => list.insertAtHead(input));
+                inputs.forEach((input) => actual.insertAtHead(input));
 
-                const expected = [...[...initial].reverse(), ...inputs];
-                assertEquals(list.size(), expected.length, 'size does not match');
-                assertEquals(list.isEmpty(), list.size() === 0, 'isEmpty does not match');
-                assertEquals(list.toArray().length, expected.length, 'toArray does not match');
-                assertEquals(Array.from([...list]), [...expected].reverse(), 'iterator does not match');
-                assertEquals(Array.from([...list.reverseIterator()]), expected, 'reverseIterator does not match');
-                [...expected].reverse().forEach((item, index) => {
-                    assertEquals(list.contains(item), true, 'contains does not match');
-                    assertEquals(list.get(index), item, 'get does not match');
-                });
+                const expected = [...[...initial].reverse(), ...inputs].reverse();
+                assertAll(actual, expected);
             }),
             { verbose },
         );
@@ -62,21 +48,12 @@ Deno.test('SinglyLinkedList', async (t) => {
     await t.step('should insert at tail', () => {
         fc.assert(
             fc.property(fc.array(safeAny, { maxLength }), fc.array(safeAny, { maxLength }), (inputs, initial) => {
-                const list = new SinglyLinkedList<SafeAny>(initial);
+                const actual = new SinglyLinkedList<SafeAny>(initial);
 
-                inputs.forEach((input) => list.insertAtTail(input));
+                inputs.forEach((input) => actual.insertAtTail(input));
 
                 const expected = [...initial, ...inputs];
-
-                assertEquals(list.size(), expected.length, 'size does not match');
-                assertEquals(list.isEmpty(), list.size() === 0, 'isEmpty does not match');
-                assertEquals(list.toArray().length, expected.length, 'toArray does not match');
-                assertEquals(Array.from([...list]), expected, 'iterator does not match');
-                assertEquals(Array.from([...list.reverseIterator()]), [...expected].reverse(), 'reverseIterator does not match');
-                expected.forEach((item, index) => {
-                    assertEquals(list.contains(item), true, 'contains does not match');
-                    assertEquals(list.get(index), item, 'get does not match');
-                });
+                assertAll(actual, expected);
             }),
             { verbose },
         );
@@ -89,33 +66,14 @@ Deno.test('SinglyLinkedList', async (t) => {
                 fc.integer(),
                 safeAny,
                 (initial, index, value) => {
-                    const list = new SinglyLinkedList<SafeAny>(initial);
+                    const actual = new SinglyLinkedList<SafeAny>(initial);
                     const expected = [...initial];
-
                     if (index < 0 || index > expected.length) {
-                        // Out-of-bounds should throw
-                        let threw = false;
-                        try {
-                            list.insertAt(index, value);
-                        } catch {
-                            threw = true;
-                        }
-                        assertEquals(threw, true, 'insertAt did not throw when out of bounds');
+                        assertThrows(() => actual.insertAt(index, value), 'insertAt did not throw when out of bounds');
                     } else {
-                        // Insert at index
-                        list.insertAt(index, value);
+                        actual.insertAt(index, value);
                         expected.splice(index, 0, value);
-
-                        // Forward iteration matches expected array
-                        assertEquals(list.size(), expected.length, 'size does not match');
-                        assertEquals(list.isEmpty(), list.size() === 0, 'isEmpty does not match');
-                        assertEquals(list.toArray().length, expected.length, 'toArray does not match');
-                        assertEquals(Array.from([...list]), expected, 'iterator does not match');
-                        assertEquals(Array.from([...list.reverseIterator()]), [...expected].reverse(), 'reverseIterator does not match');
-                        expected.forEach((item, index) => {
-                            assertEquals(list.contains(item), true, 'contains does not match');
-                            assertEquals(list.get(index), item, 'get does not match');
-                        });
+                        assertAll(actual, expected);
                     }
                 },
             ),
@@ -123,24 +81,62 @@ Deno.test('SinglyLinkedList', async (t) => {
         );
     });
 
-    // await t.step('should remove at head', () => {
-    //     fc.assert(
-    //         fc.property(fc.array(fc.anything(), { maxLength }), (initial) => {
-    //             const list = new SinglyLinkedList<unknown>(initial);
+    await t.step('should remove at head', () => {
+        fc.assert(
+            fc.property(fc.array(safeAny, { maxLength }), fc.integer({ min: 1, max: 25 }), (initial, numberOfRemoves) => {
+                const actual = new SinglyLinkedList<SafeAny>(initial);
 
-    //             items.forEach((item) => list.insertAtHead(item));
+                const expected: Array<SafeAny> = [...initial];
+                for (let i = 0; i < numberOfRemoves; i++) {
+                    if (actual.isEmpty()) {
+                        const actualRemoved = actual.removeAtHead();
+                        assertEquals(actualRemoved, undefined);
+                        assertAll(actual, expected);
+                    } else {
+                        const actualRemoved = actual.removeAtHead();
+                        const expectedRemoved = expected.shift();
+                        assertEquals(actualRemoved, expectedRemoved);
+                        assertAll(actual, expected);
+                    }
+                }
+            }),
+            { verbose },
+        );
+    });
 
-    //             assertEquals(list.size(), items.length, 'size does not match');
-    //             assertEquals(list.isEmpty(), list.size() === 0, 'isEmpty does not match');
-    //             assertEquals(list.toArray().length, items.length, 'toArray does not match');
-    //             assertEquals(Array.from([...list]), [...items].reverse(), 'iterator does not match');
-    //             assertEquals(Array.from([...list.reverseIterator()]), items, 'reverseIterator does not match');
-    //             [...items].reverse().forEach((item, index) => {
-    //                 assertEquals(list.contains(item), true, 'contains does not match');
-    //                 assertEquals(list.get(index), item, 'get does not match');
-    //             });
-    //         }),
-    //         { verbose },
-    //     );
-    // });
+    await t.step('should remove at tail', () => {
+        fc.assert(
+            fc.property(fc.array(safeAny, { maxLength }), fc.integer({ min: 1, max: 25 }), (initial, numberOfRemoves) => {
+                const actual = new SinglyLinkedList<SafeAny>(initial);
+
+                const expected: Array<SafeAny> = [...initial];
+                for (let i = 0; i < numberOfRemoves; i++) {
+                    if (actual.isEmpty()) {
+                        const actualRemoved = actual.removeAtTail();
+                        assertEquals(actualRemoved, undefined);
+                        assertAll(actual, expected);
+                    } else {
+                        const actualRemoved = actual.removeAtTail();
+                        const expectedRemoved = expected.pop();
+                        assertEquals(actualRemoved, expectedRemoved);
+                        assertAll(actual, expected);
+                    }
+                }
+            }),
+            { verbose },
+        );
+    });
 });
+
+const assertAll = (actual: SinglyLinkedList<SafeAny>, expected: Array<SafeAny>) => {
+    const reverseExpected = [...expected].reverse();
+    assertEquals(actual.size(), expected.length, 'size does not match');
+    assertEquals(actual.isEmpty(), expected.length === 0, 'isEmpty does not match');
+    assertEquals(actual.toArray().length, expected.length, 'toArray does not match');
+    assertEquals(Array.from([...actual]), expected, 'iterator does not match');
+    assertEquals(Array.from([...actual.reverseIterator()]), reverseExpected, 'reverseIterator does not match');
+    expected.forEach((item, index) => {
+        assertEquals(actual.contains(item), true, 'contains does not match');
+        assertEquals(actual.get(index), item, 'get does not match');
+    });
+};

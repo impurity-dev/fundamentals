@@ -152,6 +152,10 @@ export class SinglyLinkedList<T> implements ILinkedList<T> {
         return array;
     }
 
+    clone(): SinglyLinkedList<T> {
+        return new SinglyLinkedList<T>([...this]);
+    }
+
     *[Symbol.iterator](): IterableIterator<T> {
         let current = this.head;
         while (current) {
