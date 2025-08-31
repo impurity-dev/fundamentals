@@ -81,6 +81,11 @@ export interface ILinkedList<T> extends Iterable<T> {
     toArray(): T[];
 
     /**
+     * Clones the linked list into a new copy.
+     */
+    clone(): ILinkedList<T>;
+
+    /**
      * Returns an iterator for iterating over the elements of the linked list in forward order.
      * @returns An iterator for the linked list.
      */

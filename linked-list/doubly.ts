@@ -1,3 +1,4 @@
+import type { Comparator } from '../shared/utils.ts';
 import type { ILinkedList } from './shared.ts';
 
 type Node<T> = {
@@ -10,6 +11,10 @@ export class DoublyLinkedList<T> implements ILinkedList<T> {
     private head: Node<T> | undefined = undefined;
     private tail: Node<T> | undefined = undefined;
     private length = 0;
+
+    constructor(items: Array<T> = []) {
+        items.forEach((i) => this.insertAtTail(i));
+    }
 
     // Insert at the beginning (O(1))
     insertAtHead(value: T): void {
@@ -71,9 +76,10 @@ export class DoublyLinkedList<T> implements ILinkedList<T> {
         return value;
     }
 
-    // Remove last element (O(1))
     removeAtTail(): T | undefined {
-        if (!this.tail) return undefined;
+        if (!this.tail) {
+            return undefined;
+        }
         const value = this.tail.value;
         this.tail = this.tail.prev;
         if (this.tail) {
@@ -85,7 +91,6 @@ export class DoublyLinkedList<T> implements ILinkedList<T> {
         return value;
     }
 
-    // Remove at index (O(n))
     removeAt(index: number): T | undefined {
         if (index < 0 || index >= this.length) {
             throw new RangeError('Index out of bounds');
@@ -93,19 +98,20 @@ export class DoublyLinkedList<T> implements ILinkedList<T> {
         if (index === 0) return this.removeAtHead();
         if (index === this.length - 1) return this.removeAtTail();
 
-        let curr = this.head;
+        let current = this.head;
         for (let i = 0; i < index; i++) {
-            curr = curr!.next;
+            current = current!.next;
         }
-        curr!.prev!.next = curr!.next;
-        curr!.next!.prev = curr!.prev;
+        current!.prev!.next = current!.next;
+        current!.next!.prev = current!.prev;
         this.length--;
-        return curr!.value;
+        return current!.value;
     }
 
-    // Get element by index (O(n))
     get(index: number): T | undefined {
-        if (index < 0 || index >= this.length) return undefined;
+        if (index < 0 || index >= this.length) {
+            throw new RangeError('Index out of bounds');
+        }
         let curr: Node<T> | undefined;
         // optimization: decide direction
         if (index < this.length / 2) {
@@ -118,14 +124,13 @@ export class DoublyLinkedList<T> implements ILinkedList<T> {
         return curr!.value;
     }
 
-    // Check if value exists (O(n))
-    contains(value: T, comparator?: (a: T, b: T) => boolean): boolean {
-        let curr = this.head;
-        while (curr) {
-            if (comparator ? comparator(curr.value, value) : curr.value === value) {
+    contains(value: T, comparator: Comparator<T> = (a: T, b: T) => a === b): boolean {
+        let current = this.head;
+        while (current) {
+            if (comparator(current.value, value)) {
                 return true;
             }
-            curr = curr.next;
+            current = current.next;
         }
         return false;
     }
@@ -139,18 +144,21 @@ export class DoublyLinkedList<T> implements ILinkedList<T> {
     }
 
     toArray(): T[] {
-        const arr: T[] = [];
-        let curr = this.head;
-        while (curr) {
-            arr.push(curr.value);
-            curr = curr.next;
+        const array: Array<T> = [];
+        let current = this.head;
+        while (current) {
+            array.push(current.value);
+            current = current.next;
         }
-        return arr;
+        return array;
     }
 
-    // Iterator support (for...of) forward
+    clone(): DoublyLinkedList<T> {
+        return new DoublyLinkedList<T>([...this]);
+    }
+
     *[Symbol.iterator](): IterableIterator<T> {
-        let current = this.tail;
+        let current = this.head;
         while (current) {
             yield current.value;
             current = current.next;

@@ -2,7 +2,7 @@ import { assertEquals } from '@std/assert/equals';
 import fc from 'fast-check';
 import { assertThrows } from '@std/assert/throws';
 import type { ILinkedList } from './shared.ts';
-import { SinglyLinkedList } from './singly.ts';
+import { DoublyLinkedList } from './doubly.ts';
 
 const verbose = true;
 const maxLength = 50;
@@ -44,11 +44,11 @@ const assertAll = (actual: ILinkedList<SafeAny>, expected: Array<SafeAny>) => {
     assertEquals(actual, actual.clone());
 };
 
-Deno.test('SinglyLinkedList', async (t) => {
+Deno.test('DoublyLinkedList', async (t) => {
     await t.step('should initialize', () => {
         fc.assert(
             fc.property(safeArray, (items) => {
-                const actual = new SinglyLinkedList(items);
+                const actual = new DoublyLinkedList(items);
 
                 const expected = [...items];
                 assertAll(actual, expected);
@@ -60,7 +60,7 @@ Deno.test('SinglyLinkedList', async (t) => {
     await t.step('should insert at head', () => {
         fc.assert(
             fc.property(safeArray, safeArray, (inputs, initial) => {
-                const actual = new SinglyLinkedList(initial);
+                const actual = new DoublyLinkedList(initial);
 
                 inputs.forEach((input) => actual.insertAtHead(input));
 
@@ -74,7 +74,7 @@ Deno.test('SinglyLinkedList', async (t) => {
     await t.step('should insert at tail', () => {
         fc.assert(
             fc.property(safeArray, safeArray, (inputs, initial) => {
-                const actual = new SinglyLinkedList(initial);
+                const actual = new DoublyLinkedList(initial);
 
                 inputs.forEach((input) => actual.insertAtTail(input));
 
@@ -92,7 +92,7 @@ Deno.test('SinglyLinkedList', async (t) => {
                 indices,
                 safeAny,
                 (initial, index, value) => {
-                    const actual = new SinglyLinkedList(initial);
+                    const actual = new DoublyLinkedList(initial);
                     const expected = [...initial];
                     if (index < 0 || index > expected.length) {
                         assertThrows(() => actual.insertAt(index, value), 'insertAt did not throw when out of bounds');
@@ -111,7 +111,7 @@ Deno.test('SinglyLinkedList', async (t) => {
     await t.step('should remove at head', () => {
         fc.assert(
             fc.property(safeArray, fc.integer({ min: 1, max: 25 }), (initial, numberOfRemoves) => {
-                const actual = new SinglyLinkedList(initial);
+                const actual = new DoublyLinkedList(initial);
 
                 const expected: Array<SafeAny> = [...initial];
                 for (let i = 0; i < numberOfRemoves; i++) {
@@ -134,7 +134,7 @@ Deno.test('SinglyLinkedList', async (t) => {
     await t.step('should remove at tail', () => {
         fc.assert(
             fc.property(safeArray, fc.integer({ min: 1, max: 25 }), (initial, numberOfRemoves) => {
-                const actual = new SinglyLinkedList(initial);
+                const actual = new DoublyLinkedList(initial);
 
                 const expected: Array<SafeAny> = [...initial];
                 for (let i = 0; i < numberOfRemoves; i++) {
@@ -160,7 +160,7 @@ Deno.test('SinglyLinkedList', async (t) => {
                 safeArray,
                 indices,
                 (initial, index) => {
-                    const actual = new SinglyLinkedList(initial);
+                    const actual = new DoublyLinkedList(initial);
                     if (index < 0 || index >= initial.length) {
                         assertThrows(() => actual.removeAt(index), 'removeAt did not throw when out of bounds');
                         assertAll(actual, initial);
@@ -183,7 +183,7 @@ Deno.test('SinglyLinkedList', async (t) => {
                 safeArray,
                 indices,
                 (initial, index) => {
-                    const actual = new SinglyLinkedList(initial);
+                    const actual = new DoublyLinkedList(initial);
                     const expected = [...initial];
                     if (index < 0 || index >= expected.length) {
                         assertThrows(() => actual.get(index), 'get out of range did not throw');
@@ -205,7 +205,7 @@ Deno.test('SinglyLinkedList', async (t) => {
                 safeArray,
                 safeAny,
                 (initial, value) => {
-                    const actual = new SinglyLinkedList(initial);
+                    const actual = new DoublyLinkedList(initial);
                     const expected = [...initial];
                     const expectedContains = initial.includes(value);
                     const actualContains = actual.contains(value);
@@ -225,7 +225,7 @@ Deno.test('SinglyLinkedList', async (t) => {
                 fc.integer({ min: 0, max: comparators.length - 1 }),
                 (initial, value, comparatorIndex) => {
                     const comparator = comparators[comparatorIndex];
-                    const actual = new SinglyLinkedList([...initial]);
+                    const actual = new DoublyLinkedList([...initial]);
                     const expected = [...initial];
                     const expectedContains = initial.some((cur) => comparator(cur, value));
                     const actualContains = actual.contains(value, comparator);
