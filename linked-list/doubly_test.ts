@@ -28,7 +28,7 @@ const comparators = [
     (a: SafeAny, b: SafeAny) => typeof a === 'number' && typeof b === 'number' && Math.abs(a - b) < 1e-6, // fuzzy numbers
 ];
 const safeArray = fc.array(safeAny, { maxLength });
-const indices = fc.integer({ min: -1, max: maxLength + 1 });
+const indices = fc.oneof(fc.constant(-1), fc.constant(0), fc.integer({ min: 1, max: maxLength - 1 }), fc.constant(maxLength), fc.constant(maxLength + 1));
 
 const assertAll = (actual: ILinkedList<SafeAny>, expected: Array<SafeAny>) => {
     const reverseExpected = [...expected].reverse();

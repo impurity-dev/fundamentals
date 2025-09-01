@@ -60,7 +60,7 @@ export class SinglyLinkedList<T> implements ILinkedList<T> {
         if (!this.head) {
             return undefined;
         }
-        const value = this.head.value;
+        const { value } = this.head;
         this.head = this.head.next;
         if (!this.head) {
             this.tail = undefined;
@@ -74,7 +74,7 @@ export class SinglyLinkedList<T> implements ILinkedList<T> {
             return undefined;
         }
         if (this.head === this.tail) {
-            const value = this.head.value;
+            const { value } = this.head;
             this.head = this.tail = undefined;
             this.length = 0;
             return value;
@@ -83,7 +83,7 @@ export class SinglyLinkedList<T> implements ILinkedList<T> {
         while (current.next !== this.tail) {
             current = current.next!;
         }
-        const value = this.tail!.value;
+        const { value } = this.tail!;
         current.next = undefined;
         this.tail = current;
         this.length--;
@@ -91,9 +91,7 @@ export class SinglyLinkedList<T> implements ILinkedList<T> {
     }
 
     removeAt(index: number): T | undefined {
-        if (index < 0 || index >= this.length) {
-            throw new RangeError('Index out of bounds');
-        }
+        if (index < 0 || index >= this.length) throw new RangeError('Index out of bounds');
         if (index === 0) return this.removeAtHead();
         if (index === this.length - 1) return this.removeAtTail();
 
@@ -101,25 +99,20 @@ export class SinglyLinkedList<T> implements ILinkedList<T> {
         for (let i = 0; i < index - 1; i++) {
             current = current!.next;
         }
-        const value = current!.next!.value;
+        const { value } = current!.next!;
         current!.next = current!.next!.next;
         this.length--;
         return value;
     }
 
     get(index: number): T | undefined {
-        if (index < 0 || index >= this.length) {
-            throw new RangeError('Index out of bounds');
-        }
+        if (index < 0 || index >= this.length) throw new RangeError('Index out of bounds');
+
         let current = this.head;
-        let currentIndex = 0;
-        while (current) {
-            if (currentIndex == index) {
-                return current.value;
-            }
-            current = current.next;
-            currentIndex++;
+        for (let i = 0; i < index; i++) {
+            current = current!.next;
         }
+        return current!.value;
     }
 
     contains(value: T, comparator: Comparator<T> = (a: T, b: T) => a === b): boolean {
@@ -142,13 +135,7 @@ export class SinglyLinkedList<T> implements ILinkedList<T> {
     }
 
     toArray(): T[] {
-        const array: Array<T> = [];
-        let current = this.head;
-        while (current) {
-            array.push(current.value);
-            current = current.next;
-        }
-        return array;
+        return [...this];
     }
 
     clone(): SinglyLinkedList<T> {
@@ -164,12 +151,7 @@ export class SinglyLinkedList<T> implements ILinkedList<T> {
     }
 
     *reverseIterator(): IterableIterator<T> {
-        const values: T[] = [];
-        let current = this.head;
-        while (current) {
-            values.push(current.value);
-            current = current.next;
-        }
+        const values: T[] = this.toArray();
         for (let i = values.length - 1; i >= 0; i--) {
             yield values[i];
         }
