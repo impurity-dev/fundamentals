@@ -5,7 +5,7 @@ class Node<T> {
     constructor(public readonly value: T, public next: Node<T> = this, public prev: Node<T> = this) {}
 }
 
-export class CircularDoubleLinkedList<T> implements ILinkedList<T> {
+export class CircularDoublyLinkedList<T> implements ILinkedList<T> {
     private head: Node<T> | undefined = undefined;
     private tail: Node<T> | undefined = undefined;
     private length: number = 0;
@@ -160,7 +160,7 @@ export class CircularDoubleLinkedList<T> implements ILinkedList<T> {
     }
 
     clone(): ILinkedList<T> {
-        return new CircularDoubleLinkedList(this.toArray());
+        return new CircularDoublyLinkedList(this.toArray());
     }
 
     *[Symbol.iterator](): IterableIterator<T> {
