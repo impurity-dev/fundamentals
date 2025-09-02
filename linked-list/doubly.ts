@@ -16,56 +16,48 @@ export class DoublyLinkedList<T> implements ILinkedList<T> {
         items.forEach((i) => this.insertAtTail(i));
     }
 
-    // Insert at the beginning (O(1))
     insertAtHead(value: T): void {
-        const newNode: Node<T> = { value, next: this.head, prev: undefined };
+        const node: Node<T> = { value, next: this.head, prev: undefined };
         if (this.head) {
-            this.head.prev = newNode;
+            this.head.prev = node;
         }
-        this.head = newNode;
-        if (!this.tail) this.tail = newNode;
+        this.head = node;
+        if (!this.tail) this.tail = node;
         this.length++;
     }
 
-    // Insert at the end (O(1))
     insertAtTail(value: T): void {
-        const newNode: Node<T> = { value, next: undefined, prev: this.tail };
+        const node: Node<T> = { value, next: undefined, prev: this.tail };
         if (this.tail) {
-            this.tail.next = newNode;
+            this.tail.next = node;
         }
-        this.tail = newNode;
-        if (!this.head) this.head = newNode;
+        this.tail = node;
+        if (!this.head) this.head = node;
         this.length++;
     }
 
-    // Insert at index (O(n))
     insertAt(index: number, value: T): void {
-        if (index < 0 || index > this.length) {
-            throw new RangeError('Index out of bounds');
-        }
-        if (index === 0) {
-            this.insertAtHead(value);
-            return;
-        }
-        if (index === this.length) {
-            this.insertAtTail(value);
-            return;
-        }
+        if (index < 0 || index > this.length) throw new RangeError('Index out of bounds');
+        if (index === 0) return this.insertAtHead(value);
+        if (index === this.length) return this.insertAtTail(value);
 
-        let curr = this.head;
-        for (let i = 0; i < index; i++) {
-            curr = curr!.next;
+        let current: Node<T>;
+        if (index <= this.length / 2) {
+            current = this.head!;
+            for (let i = 0; i < index; i++) current = current.next!;
+        } else {
+            current = this.tail!;
+            for (let i = this.length - 1; i > index; i--) current = current.prev!;
         }
-        const newNode: Node<T> = { value, next: curr, prev: curr!.prev };
-        curr!.prev!.next = newNode;
-        curr!.prev = newNode;
+        const node: Node<T> = { value, next: current, prev: current.prev };
+        current.prev!.next = node;
+        current.prev = node;
         this.length++;
     }
 
-    // Remove first element (O(1))
     removeAtHead(): T | undefined {
         if (!this.head) return undefined;
-        const value = this.head.value;
+        const { value } = this.head;
         this.head = this.head.next;
         if (this.head) {
             this.head.prev = undefined;
@@ -80,7 +72,7 @@ export class DoublyLinkedList<T> implements ILinkedList<T> {
         if (!this.tail) {
             return undefined;
         }
-        const value = this.tail.value;
+        const { value } = this.tail;
         this.tail = this.tail.prev;
         if (this.tail) {
             this.tail.next = undefined;
@@ -98,9 +90,13 @@ export class DoublyLinkedList<T> implements ILinkedList<T> {
         if (index === 0) return this.removeAtHead();
         if (index === this.length - 1) return this.removeAtTail();
 
-        let current = this.head;
-        for (let i = 0; i < index; i++) {
-            current = current!.next;
+        let current: Node<T>;
+        if (index <= this.length / 2) {
+            current = this.head!;
+            for (let i = 0; i < index; i++) current = current.next!;
+        } else {
+            current = this.tail!;
+            for (let i = this.length - 1; i > index; i--) current = current.prev!;
         }
         current!.prev!.next = current!.next;
         current!.next!.prev = current!.prev;
@@ -112,16 +108,15 @@ export class DoublyLinkedList<T> implements ILinkedList<T> {
         if (index < 0 || index >= this.length) {
             throw new RangeError('Index out of bounds');
         }
-        let curr: Node<T> | undefined;
-        // optimization: decide direction
+        let current: Node<T> | undefined;
         if (index < this.length / 2) {
-            curr = this.head;
-            for (let i = 0; i < index; i++) curr = curr!.next;
+            current = this.head;
+            for (let i = 0; i < index; i++) current = current!.next;
         } else {
-            curr = this.tail;
-            for (let i = this.length - 1; i > index; i--) curr = curr!.prev;
+            current = this.tail;
+            for (let i = this.length - 1; i > index; i--) current = current!.prev;
         }
-        return curr!.value;
+        return current!.value;
     }
 
     contains(value: T, comparator: Comparator<T> = (a: T, b: T) => a === b): boolean {
@@ -144,17 +139,11 @@ export class DoublyLinkedList<T> implements ILinkedList<T> {
     }
 
     toArray(): T[] {
-        const array: Array<T> = [];
-        let current = this.head;
-        while (current) {
-            array.push(current.value);
-            current = current.next;
-        }
-        return array;
+        return [...this];
     }
 
     clone(): DoublyLinkedList<T> {
-        return new DoublyLinkedList<T>([...this]);
+        return new DoublyLinkedList<T>(this.toArray());
     }
 
     *[Symbol.iterator](): IterableIterator<T> {
