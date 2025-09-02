@@ -1,9 +1,19 @@
 import type { Comparator } from '../shared/utils.ts';
 import type { ILinkedList } from './shared.ts';
 
-class Node<T> {
-    constructor(public readonly value: T, public next: Node<T> = this, public prev: Node<T> = this) {}
+export class Node<T> {
+    public readonly value: T;
+    public next: Node<T>;
+    public prev: Node<T>;
+    constructor(args: { value: T; next?: Node<T>; prev?: Node<T> }) {
+        const { value, next, prev } = args;
+        this.value = value;
+        this.next = next ?? this;
+        this.prev = prev ?? this;
+    }
 }
+
+export const CircularDoublyNode = Node;
 
 export class CircularDoublyLinkedList<T> implements ILinkedList<T> {
     private head: Node<T> | undefined = undefined;
@@ -15,7 +25,7 @@ export class CircularDoublyLinkedList<T> implements ILinkedList<T> {
     }
 
     insertAtHead(value: T): void {
-        const node = new Node(value);
+        const node = new Node({ value });
         if (!this.head || !this.tail) {
             this.head = node;
             this.tail = node;
@@ -32,7 +42,7 @@ export class CircularDoublyLinkedList<T> implements ILinkedList<T> {
     }
 
     insertAtTail(value: T): void {
-        const node = new Node(value);
+        const node = new Node({ value });
         if (!this.head || !this.tail) {
             this.head = node;
             this.tail = node;
@@ -61,7 +71,7 @@ export class CircularDoublyLinkedList<T> implements ILinkedList<T> {
             current = this.tail;
             for (let i = this.length - 1; i > index; i--) current = current.prev;
         }
-        const node = new Node(value, current, current.prev);
+        const node = new Node({ value, next: current, prev: current.prev });
         current.prev.next = node;
         current.prev = node;
         this.length++;

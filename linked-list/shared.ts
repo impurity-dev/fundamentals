@@ -97,3 +97,46 @@ export interface ILinkedList<T> extends Iterable<T> {
      */
     reverseIterator(): IterableIterator<T>;
 }
+
+/**
+ * Represents a linked list where each node can have its own list of child nodes,
+ * enabling the creation of nested or hierarchical linked list structures.
+ *
+ * @typeParam Value - The type of value stored in each node.
+ * @typeParam Node - The type representing a node in the linked list.
+ *
+ * Extends the {@link ILinkedList} interface to provide additional methods for managing
+ * child nodes, including adding, retrieving, and removing children, as well as flattening
+ * the nested structure into a single list.
+ */
+export interface INestedLinkedList<T, K> extends ILinkedList<K> {
+    /**
+     * Adds a child node with the specified value to the node at the given parent index.
+     * @param parentIndex - The index of the parent node.
+     * @param value - The value of the child node to add.
+     */
+    addChild(parentIndex: number, value: T): void;
+
+    /**
+     * Retrieves the children of the node at the specified index.
+     * @param parentIndex - The index of the parent node.
+     * @returns An array of child nodes, or undefined if the parent does not exist.
+     */
+    getChildren(parentIndex: number): K[] | undefined;
+
+    /**
+     * Removes the child node at the specified child index from the parent node at the given parent index.
+     * @param parentIndex - The index of the parent node.
+     * @param childIndex - The index of the child node to remove.
+     * @returns The removed child node, or undefined if not found.
+     */
+    removeChild(parentIndex: number, childIndex: number): K | undefined;
+
+    /**
+     * Flattens the nested linked list structure into a single-level linked list.
+     * This operation traverses all nodes and their children, combining them into a flat sequence.
+     *
+     * @returns The head node of the flattened linked list, or `undefined` if the list is empty.
+     */
+    flatten(): K | undefined;
+}

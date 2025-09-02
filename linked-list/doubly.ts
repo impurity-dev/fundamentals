@@ -1,11 +1,19 @@
 import type { Comparator } from '../shared/utils.ts';
 import type { ILinkedList } from './shared.ts';
 
-type Node<T> = {
-    value: T;
-    next: Node<T> | undefined;
-    prev: Node<T> | undefined;
-};
+class Node<T> {
+    public readonly value: T;
+    public next: Node<T> | undefined;
+    public prev: Node<T> | undefined;
+    constructor(args: { value: T; next?: Node<T>; prev?: Node<T> }) {
+        const { value, next, prev } = args;
+        this.value = value;
+        this.next = next;
+        this.prev = prev;
+    }
+}
+
+export const DoublyNode = Node;
 
 export class DoublyLinkedList<T> implements ILinkedList<T> {
     private head: Node<T> | undefined = undefined;
@@ -17,7 +25,7 @@ export class DoublyLinkedList<T> implements ILinkedList<T> {
     }
 
     insertAtHead(value: T): void {
-        const node: Node<T> = { value, next: this.head, prev: undefined };
+        const node = new Node({ value, next: this.head, prev: undefined });
         if (this.head) {
             this.head.prev = node;
         }
@@ -27,7 +35,7 @@ export class DoublyLinkedList<T> implements ILinkedList<T> {
     }
 
     insertAtTail(value: T): void {
-        const node: Node<T> = { value, next: undefined, prev: this.tail };
+        const node = new Node({ value, next: undefined, prev: this.tail });
         if (this.tail) {
             this.tail.next = node;
         }
@@ -49,7 +57,7 @@ export class DoublyLinkedList<T> implements ILinkedList<T> {
             current = this.tail!;
             for (let i = this.length - 1; i > index; i--) current = current.prev!;
         }
-        const node: Node<T> = { value, next: current, prev: current.prev };
+        const node: Node<T> = new Node({ value, next: current, prev: current.prev });
         current.prev!.next = node;
         current.prev = node;
         this.length++;

@@ -1,9 +1,17 @@
 import type { Comparator } from '../shared/utils.ts';
 import type { ILinkedList } from './shared.ts';
 
-class Node<T> {
-    constructor(public readonly value: T, public next: Node<T> = this) {}
+export class Node<T> {
+    public readonly value: T;
+    public next: Node<T>;
+    constructor(args: { value: T; next?: Node<T> }) {
+        const { value, next } = args;
+        this.value = value;
+        this.next = next ?? this;
+    }
 }
+
+export const CircularSinglyNode = Node;
 
 export class CircularSinglyLinkedList<T> implements ILinkedList<T> {
     private head: Node<T> | undefined = undefined;
@@ -15,7 +23,7 @@ export class CircularSinglyLinkedList<T> implements ILinkedList<T> {
     }
 
     insertAtHead(value: T): void {
-        const node: Node<T> = new Node(value);
+        const node = new Node({ value });
         if (!this.head || !this.tail) {
             this.head = node;
             this.tail = node;
@@ -29,7 +37,7 @@ export class CircularSinglyLinkedList<T> implements ILinkedList<T> {
     }
 
     insertAtTail(value: T): void {
-        const node = new Node(value);
+        const node = new Node({ value });
         if (!this.head || !this.tail) {
             this.head = node;
             this.tail = node;
@@ -58,7 +66,7 @@ export class CircularSinglyLinkedList<T> implements ILinkedList<T> {
         for (let i = 0; i < index - 1; i++) {
             current = current.next;
         }
-        current.next = new Node(value, current.next);
+        current.next = new Node({ value, next: current.next });
         this.length++;
     }
 

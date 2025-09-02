@@ -1,10 +1,17 @@
 import type { Comparator } from '../shared/mod.ts';
 import type { ILinkedList } from './shared.ts';
 
-type Node<T> = {
-    value: T;
-    next?: Node<T>;
-};
+class Node<T> {
+    public readonly value: T;
+    public next: Node<T> | undefined;
+    constructor(args: { value: T; next?: Node<T> }) {
+        const { value, next } = args;
+        this.value = value;
+        this.next = next;
+    }
+}
+
+export const SinglyNode = Node;
 
 export class SinglyLinkedList<T> implements ILinkedList<T> {
     private head: Node<T> | undefined = undefined;
@@ -16,7 +23,7 @@ export class SinglyLinkedList<T> implements ILinkedList<T> {
     }
 
     insertAtHead(value: T): void {
-        const node: Node<T> = { value, next: this.head };
+        const node = new Node({ value, next: this.head });
         this.head = node;
         if (!this.tail) {
             this.tail = node;
@@ -25,7 +32,7 @@ export class SinglyLinkedList<T> implements ILinkedList<T> {
     }
 
     insertAtTail(value: T): void {
-        const node: Node<T> = { value, next: undefined };
+        const node = new Node({ value });
         if (!this.head) {
             this.head = node;
             this.tail = node;
@@ -52,7 +59,7 @@ export class SinglyLinkedList<T> implements ILinkedList<T> {
         for (let i = 0; i < index - 1; i++) {
             current = current.next!;
         }
-        current.next = { value, next: current.next };
+        current.next = new Node({ value, next: current.next });
         this.length++;
     }
 
