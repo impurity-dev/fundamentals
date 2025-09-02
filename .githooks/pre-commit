@@ -7,5 +7,5 @@ echo "🔍 Linting..."
 deno lint --fix
 echo "✅ Code fixed!"
 # Add any changes caused by fixes
-git add -u
+git add .
 echo "🚀 All changes staged!"
