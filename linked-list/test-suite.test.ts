@@ -35,7 +35,7 @@ const assertAll = (actual: ILinkedList<SafeAny>, expected: Array<SafeAny>) => {
     assertEquals(actual.isEmpty(), expected.length === 0, 'isEmpty does not match');
     assertEquals(actual.toArray().length, expected.length, 'toArray does not match');
     assertEquals(Array.from([...actual]), expected, 'iterator does not match');
-    assertEquals(Array.from([...actual.reverseIterator()]), reverseExpected, 'reverseIterator does not match');
+    assertEquals(Array.from([...actual.reverse()]), reverseExpected, 'reverseIterator does not match');
     expected.forEach((item, index) => {
         assertEquals(actual.contains(item), true, 'contains does not match');
         assertEquals(actual.get(index), item, 'get does not match');

@@ -146,7 +146,82 @@ export class SinglyLinkedList<T> implements ILinkedList<T> {
     }
 
     clone(): SinglyLinkedList<T> {
-        return new SinglyLinkedList<T>([...this]);
+        return new SinglyLinkedList<T>(this.toArray());
+    }
+
+    *values(): IterableIterator<T> {
+        yield* this;
+    }
+
+    *keys(): IterableIterator<number> {
+        let i = 0;
+        for (const _ of this) yield i++;
+    }
+
+    *entries(): IterableIterator<[number, T]> {
+        let i = 0;
+        for (const v of this) yield [i++, v];
+    }
+
+    forEach(fn: (value: T, index: number) => void): void {
+        let i = 0;
+        for (const v of this) fn(v, i++);
+    }
+
+    *map<U>(fn: (value: T, index: number) => U): IterableIterator<U> {
+        let i = 0;
+        for (const v of this) yield fn(v, i++);
+    }
+
+    *flatMap<U>(fn: (value: T, index: number) => Iterable<U>): IterableIterator<U> {
+        let i = 0;
+        for (const v of this) yield* fn(v, i++);
+    }
+
+    reduce<U>(fn: (acc: U, value: T, index: number) => U, init: U): U {
+        let acc = init;
+        let i = 0;
+        for (const v of this) acc = fn(acc, v, i++);
+        return acc;
+    }
+
+    *filter(fn: (value: T, index: number) => boolean): IterableIterator<T> {
+        let i = 0;
+        for (const v of this) if (fn(v, i++)) yield v;
+    }
+
+    *take(n: number): IterableIterator<T> {
+        let i = 0;
+        for (const v of this) {
+            if (i++ >= n) break;
+            yield v;
+        }
+    }
+
+    *drop(n: number): IterableIterator<T> {
+        let i = 0;
+        for (const v of this) {
+            if (i++ < n) continue;
+            yield v;
+        }
+    }
+
+    find(fn: (value: T, index: number) => boolean): T | undefined {
+        let i = 0;
+        for (const v of this) if (fn(v, i++)) return v;
+        return undefined;
+    }
+
+    every(fn: (value: T, index: number) => boolean): boolean {
+        let i = 0;
+        for (const v of this) if (!fn(v, i++)) return false;
+        return true;
+    }
+
+    some(fn: (value: T, index: number) => boolean): boolean {
+        let i = 0;
+        for (const v of this) if (fn(v, i++)) return true;
+        return false;
     }
 
     *[Symbol.iterator](): IterableIterator<T> {
@@ -157,7 +232,7 @@ export class SinglyLinkedList<T> implements ILinkedList<T> {
         }
     }
 
-    *reverseIterator(): IterableIterator<T> {
+    *reverse(): IterableIterator<T> {
         const values: T[] = this.toArray();
         for (let i = values.length - 1; i >= 0; i--) {
             yield values[i];

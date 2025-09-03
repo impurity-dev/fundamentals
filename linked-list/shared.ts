@@ -75,6 +75,101 @@ export interface ILinkedList<T> extends Iterable<T> {
     size(): number;
 
     /**
+     * Returns an iterator of the values in the linked list.
+     * @returns An iterator over the values in the linked list.
+     */
+    values(): IterableIterator<T>;
+
+    /**
+     * Returns an iterator of the indices (keys) in the linked list.
+     * @returns An iterator over the indices of the linked list.
+     */
+    keys(): IterableIterator<number>;
+
+    /**
+     * Returns an iterator of [index, value] pairs for each element in the linked list.
+     * @returns An iterator over [index, value] pairs.
+     */
+    entries(): IterableIterator<[number, T]>;
+
+    /**
+     * Executes a provided function once for each element in the linked list, in order.
+     * @param fn - The function to execute for each element, receiving the value and its index as arguments.
+     */
+    forEach(fn: (value: T, index: number) => void): void;
+
+    /**
+     * Creates a new iterator by applying a mapping function to each element in the linked list.
+     * @param fn - The mapping function, receiving the value and index.
+     * @returns An iterator over the mapped values.
+     */
+    map<U>(fn: (value: T, index: number) => U): IterableIterator<U>;
+
+    /**
+     * Creates a new iterator by applying a mapping function to each element in the linked list,
+     * and then flattening the result into a single sequence.
+     *
+     * This is similar to calling `map` followed by `flat`, but more efficient.
+     * For each element in the list, the provided function is called with the value and its index,
+     * and should return an iterable of zero or more elements. The resulting iterables are concatenated
+     * into a single iterator.
+     *
+     * @param fn - The mapping function, receiving the value and index, and returning an iterable of mapped values.
+     * @returns An iterator over the flattened, mapped values.
+     */
+    flatMap<U>(fn: (value: T, index: number) => Iterable<U>): IterableIterator<U>;
+
+    /**
+     * Reduces the linked list to a single value using the provided reducer function and initial value.
+     * @param fn - The reducer function, receiving the accumulator, value, and index.
+     * @param init - The initial accumulator value.
+     * @returns The reduced value.
+     */
+    reduce<U>(fn: (acc: U, value: T, index: number) => U, init: U): U;
+
+    /**
+     * Returns an iterator of elements that satisfy the provided predicate function.
+     * @param fn - The predicate function, receiving the value and index.
+     * @returns An iterator over the filtered values.
+     */
+    filter(fn: (value: T, index: number) => boolean): IterableIterator<T>;
+
+    /**
+     * Returns an iterator of the first `n` elements in the linked list.
+     * @param n - The number of elements to take.
+     * @returns An iterator over the first `n` elements.
+     */
+    take(n: number): IterableIterator<T>;
+
+    /**
+     * Returns an iterator of the elements in the linked list after skipping the first `n` elements.
+     * @param n - The number of elements to skip.
+     * @returns An iterator over the remaining elements after skipping `n`.
+     */
+    drop(n: number): IterableIterator<T>;
+
+    /**
+     * Finds the first element that satisfies the provided predicate function.
+     * @param fn - The predicate function, receiving the value and index.
+     * @returns The first matching value, or undefined if none found.
+     */
+    find(fn: (value: T, index: number) => boolean): T | undefined;
+
+    /**
+     * Checks whether all elements satisfy the provided predicate function.
+     * @param fn - The predicate function, receiving the value and index.
+     * @returns True if all elements satisfy the predicate, otherwise false.
+     */
+    every(fn: (value: T, index: number) => boolean): boolean;
+
+    /**
+     * Checks whether at least one element satisfies the provided predicate function.
+     * @param fn - The predicate function, receiving the value and index.
+     * @returns True if any element satisfies the predicate, otherwise false.
+     */
+    some(fn: (value: T, index: number) => boolean): boolean;
+
+    /**
      * Converts the linked list to an array.
      * @returns An array containing all elements of the linked list.
      */
@@ -95,15 +190,15 @@ export interface ILinkedList<T> extends Iterable<T> {
      * Returns an iterator for iterating over the elements of the linked list in reverse order.
      * @returns An iterable iterator for the linked list in reverse order.
      */
-    reverseIterator(): IterableIterator<T>;
+    reverse(): IterableIterator<T>;
 }
 
 /**
  * Represents a linked list where each node can have its own list of child nodes,
  * enabling the creation of nested or hierarchical linked list structures.
  *
- * @typeParam Value - The type of value stored in each node.
- * @typeParam Node - The type representing a node in the linked list.
+ * @typeParam T - The type of value stored in each node.
+ * @typeParam K - The type representing a node in the linked list.
  *
  * Extends the {@link ILinkedList} interface to provide additional methods for managing
  * child nodes, including adding, retrieving, and removing children, as well as flattening
