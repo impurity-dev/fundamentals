@@ -1,7 +1,7 @@
 import { assertEquals } from '@std/assert/equals';
 import fc from 'fast-check';
 import { assertThrows } from '@std/assert/throws';
-import type { ILinkedList } from './shared.ts';
+import type { ILinkedList } from './linked-list.ts';
 
 const verbose = true;
 const maxLength = 50;

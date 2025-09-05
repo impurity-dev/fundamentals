@@ -1,4 +1,4 @@
-import type { INestedLinkedList } from './shared.ts';
+import type { INestedLinkedList } from './nested-linked-list.ts';
 import { SinglyLinkedList } from './singly.ts';
 
 class Node<T> {

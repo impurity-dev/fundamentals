@@ -1,5 +1,5 @@
 import type { Comparator } from '../shared/utils.ts';
-import type { ILinkedList } from './shared.ts';
+import type { ILinkedList } from './linked-list.ts';
 
 export class Node<T> {
     public readonly value: T;

@@ -194,44 +194,24 @@ export interface ILinkedList<T, K extends { value: T } = { value: T }> extends I
     /**
      * Sorts the list in place using an optional comparator.
      * @param comparator - Optional comparison function (a, b) => number.
+     * @returns The list itself, for chaining.
      * @example
      * ```ts
      * list.sort((a, b) => a - b);
      * ```
      */
-    sort(sorter?: Sorter<T>): void;
+    sort(sorter?: Sorter<T>): ILinkedList<T>;
 
     /**
      * Sorts the list in place and reverses the order using an optional comparator.
      * @param comparator - Optional comparison function (a, b) => number.
+     * @returns The list itself, for chaining.
      * @example
      * ```ts
      * list.sortReverse((a, b) => a - b);
      * ```
      */
-    sortReverse(sorter?: Sorter<T>): void;
-
-    /**
-     * Sorts the list in a new linked list using an optional comparator.
-     * @param comparator - Optional comparison function (a, b) => number.
-     * @returns The list itself, for chaining.
-     * @example
-     * ```ts
-     * list.sort((a, b) => a - b);
-     * ```
-     */
-    sorted(sorter?: Sorter<T>): ILinkedList<T>;
-
-    /**
-     * Sorts the list in a new linked list using an optional comparator.
-     * @param comparator - Optional comparison function (a, b) => number.
-     * @returns The list itself, for chaining.
-     * @example
-     * ```ts
-     * list.sort((a, b) => a - b);
-     * ```
-     */
-    sortedReverse(sorter?: Sorter<T>): ILinkedList<T>;
+    sortReverse(sorter?: Sorter<T>): this;
 
     /** Returns an iterator over values (head → tail).
      * @example
@@ -466,4 +446,47 @@ export interface ILinkedList<T, K extends { value: T } = { value: T }> extends I
      * ```
      */
     reverse(): IterableIterator<T>;
+}
+
+/**
+ * Represents a linked list where each node can have its own list of child nodes,
+ * enabling the creation of nested or hierarchical linked list structures.
+ *
+ * @typeParam T - The type of value stored in each node.
+ * @typeParam K - The type representing a node in the linked list.
+ *
+ * Extends the {@link ILinkedList} interface to provide additional methods for managing
+ * child nodes, including adding, retrieving, and removing children, as well as flattening
+ * the nested structure into a single list.
+ */
+export interface INestedLinkedList<T, K extends { value: T }> extends ILinkedList<T, K> {
+    /**
+     * Adds a child node with the specified value to the node at the given parent index.
+     * @param parentIndex - The index of the parent node.
+     * @param value - The value of the child node to add.
+     */
+    addChild(parentIndex: number, value: T): void;
+
+    /**
+     * Retrieves the children of the node at the specified index.
+     * @param parentIndex - The index of the parent node.
+     * @returns An array of child nodes, or undefined if the parent does not exist.
+     */
+    getChildren(parentIndex: number): K[] | undefined;
+
+    /**
+     * Removes the child node at the specified child index from the parent node at the given parent index.
+     * @param parentIndex - The index of the parent node.
+     * @param childIndex - The index of the child node to remove.
+     * @returns The removed child node, or undefined if not found.
+     */
+    removeChild(parentIndex: number, childIndex: number): K | undefined;
+
+    /**
+     * Flattens the nested linked list structure into a single-level linked list.
+     * This operation traverses all nodes and their children, combining them into a flat sequence.
+     *
+     * @returns The head node of the flattened linked list, or `undefined` if the list is empty.
+     */
+    flatten(): K | undefined;
 }

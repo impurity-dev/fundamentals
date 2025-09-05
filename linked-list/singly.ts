@@ -1,29 +1,51 @@
-import type { Comparator } from '../shared/mod.ts';
-import type { ILinkedList } from './shared.ts';
+import type { Comparator, Sorter } from '../shared/utils.ts';
+import type { ILinkedList } from './linked-list.ts';
 
-class Node<T> {
+export class SinglyNode<T> {
     public readonly value: T;
-    public next: Node<T> | undefined;
-    constructor(args: { value: T; next?: Node<T> }) {
+    public next: SinglyNode<T> | undefined;
+    constructor(args: { value: T; next?: SinglyNode<T> }) {
         const { value, next } = args;
         this.value = value;
         this.next = next;
     }
 }
 
-export const SinglyNode = Node;
-
-export class SinglyLinkedList<T> implements ILinkedList<T> {
-    private head: Node<T> | undefined = undefined;
-    private tail: Node<T> | undefined = undefined;
-    private length: number = 0;
+export class SinglyLinkedList<T> implements ILinkedList<T, SinglyNode<T>> {
+    protected _head: SinglyNode<T> | undefined;
+    protected _tail: SinglyNode<T> | undefined;
+    protected _length: number = 0;
 
     constructor(items: Array<T> = []) {
         items.forEach((i) => this.insertAtTail(i));
     }
 
+    get head(): SinglyNode<T> | undefined {
+        return this.head;
+    }
+
+    protected set head(value: SinglyNode<T> | undefined) {
+        this._head = value;
+    }
+
+    get tail(): SinglyNode<T> | undefined {
+        return this._tail;
+    }
+
+    protected set tail(value: SinglyNode<T> | undefined) {
+        this._tail = value;
+    }
+
+    get length(): number {
+        return this._length;
+    }
+
+    protected set length(value: number) {
+        this.length = value;
+    }
+
     insertAtHead(value: T): void {
-        const node = new Node({ value, next: this.head });
+        const node = new SinglyNode({ value, next: this.head });
         this.head = node;
         if (!this.tail) {
             this.tail = node;
@@ -32,7 +54,7 @@ export class SinglyLinkedList<T> implements ILinkedList<T> {
     }
 
     insertAtTail(value: T): void {
-        const node = new Node({ value });
+        const node = new SinglyNode({ value });
         if (!this.head) {
             this.head = node;
             this.tail = node;
@@ -59,8 +81,12 @@ export class SinglyLinkedList<T> implements ILinkedList<T> {
         for (let i = 0; i < index - 1; i++) {
             current = current.next!;
         }
-        current.next = new Node({ value, next: current.next });
+        current.next = new SinglyNode({ value, next: current.next });
         this.length++;
+    }
+
+    insertAtReverse(index: number, value: T): void {
+        this.insertAt(this.length - 1 - index, value);
     }
 
     removeAtHead(): T | undefined {
@@ -112,6 +138,10 @@ export class SinglyLinkedList<T> implements ILinkedList<T> {
         return value;
     }
 
+    removeAtReverse(index: number): T | undefined {
+        return this.removeAt(this.length - 1 - index);
+    }
+
     get(index: number): T | undefined {
         if (index < 0 || index >= this.length) throw new RangeError('Index out of bounds');
 
@@ -122,15 +152,48 @@ export class SinglyLinkedList<T> implements ILinkedList<T> {
         return current!.value;
     }
 
+    getReverse(index: number): T | undefined {
+        return this.get(this.length - 1 - index);
+    }
+
     contains(value: T, comparator: Comparator<T> = (a: T, b: T) => a === b): boolean {
-        let current = this.head;
-        while (current) {
-            if (comparator(value, current.value)) {
+        for (const v of this) {
+            if (comparator(v, value)) {
                 return true;
             }
-            current = current.next;
         }
         return false;
+    }
+
+    containsReverse(value: T, comparator: Comparator<T> = (a: T, b: T) => a === b): boolean {
+        for (const v of this.reverse()) {
+            if (comparator(v, value)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    sort(comparator: Sorter<T> = (a: T, b: T) => a < b ? -1 : a > b ? 1 : 0): void {
+        this.clear();
+        [...this].sort(comparator).forEach((v) => this.insertAtTail(v));
+    }
+
+    sortReverse(comparator: Sorter<T> = (a: T, b: T) => a < b ? -1 : a > b ? 1 : 0): void {
+        this.clear();
+        [...this].sort(comparator).forEach((v) => this.insertAtTail(v));
+    }
+
+    sorted(comparator: Sorter<T> = (a: T, b: T) => a < b ? -1 : a > b ? 1 : 0): SinglyLinkedList<T> {
+        const list = this.clone();
+        list.sort(comparator);
+        return list;
+    }
+
+    sortedReverse(comparator: Sorter<T> = (a: T, b: T) => a < b ? -1 : a > b ? 1 : 0): SinglyLinkedList<T> {
+        const list = this.clone();
+        list.sortReverse(comparator);
+        return list;
     }
 
     isEmpty(): boolean {
@@ -145,6 +208,16 @@ export class SinglyLinkedList<T> implements ILinkedList<T> {
         return [...this];
     }
 
+    toArrayReverse(): T[] {
+        return [...this.reverse()];
+    }
+
+    clear(): void {
+        this.head = undefined;
+        this.tail = undefined;
+        this.length = 0;
+    }
+
     clone(): SinglyLinkedList<T> {
         return new SinglyLinkedList<T>(this.toArray());
     }
@@ -153,74 +226,163 @@ export class SinglyLinkedList<T> implements ILinkedList<T> {
         yield* this;
     }
 
+    *valuesReverse(): IterableIterator<T> {
+        yield* this.reverse();
+    }
+
     *keys(): IterableIterator<number> {
         let i = 0;
-        for (const _ of this) yield i++;
+        for (const _ of this) {
+            yield i++;
+        }
+    }
+
+    *keysReverse(): IterableIterator<number> {
+        for (let i = this.length - 1; i >= 0; i--) {
+            yield i;
+        }
     }
 
     *entries(): IterableIterator<[number, T]> {
-        let i = 0;
-        for (const v of this) yield [i++, v];
+        let index = 0;
+        let current = this.head;
+        while (current) {
+            yield [index, current.value];
+            current = current.next;
+            index++;
+        }
+    }
+
+    *entriesReverse(): IterableIterator<[number, T]> {
+        const all = [...this.entries()];
+        for (let i = all.length - 1; i >= 0; i--) {
+            yield all[i];
+        }
     }
 
     forEach(fn: (value: T, index: number) => void): void {
-        let i = 0;
-        for (const v of this) fn(v, i++);
+        for (const [i, v] of this.entries()) {
+            fn(v, i);
+        }
     }
 
-    *map<U>(fn: (value: T, index: number) => U): IterableIterator<U> {
-        let i = 0;
-        for (const v of this) yield fn(v, i++);
+    forEachReverse(fn: (value: T, index: number) => void): void {
+        for (const [i, v] of this.entriesReverse()) {
+            fn(v, i);
+        }
     }
 
-    *flatMap<U>(fn: (value: T, index: number) => Iterable<U>): IterableIterator<U> {
-        let i = 0;
-        for (const v of this) yield* fn(v, i++);
+    map<U>(fn: (value: T, index: number) => U): SinglyLinkedList<U> {
+        const list = new SinglyLinkedList<U>();
+        for (const [i, v] of this.entries()) {
+            list.insertAtTail(fn(v, i));
+        }
+        return list;
+    }
+
+    mapReverse<U>(fn: (value: T, index: number) => U): SinglyLinkedList<U> {
+        const list = new SinglyLinkedList<U>();
+        for (const [i, v] of this.entriesReverse()) {
+            list.insertAtTail(fn(v, i));
+        }
+        return list;
     }
 
     reduce<U>(fn: (acc: U, value: T, index: number) => U, init: U): U {
         let acc = init;
-        let i = 0;
-        for (const v of this) acc = fn(acc, v, i++);
+        for (const [i, v] of this.entries()) {
+            acc = fn(acc, v, i);
+        }
         return acc;
     }
 
-    *filter(fn: (value: T, index: number) => boolean): IterableIterator<T> {
-        let i = 0;
-        for (const v of this) if (fn(v, i++)) yield v;
+    reduceReverse<U>(fn: (acc: U, value: T, index: number) => U, init: U): U {
+        let acc = init;
+        for (const [i, v] of this.entriesReverse()) {
+            acc = fn(acc, v, i);
+        }
+        return acc;
+    }
+
+    filter(fn: (value: T, index: number) => boolean): SinglyLinkedList<T> {
+        const list = new SinglyLinkedList<T>();
+        for (const [i, v] of this.entries()) {
+            if (fn(v, i)) list.insertAtTail(v);
+        }
+        return list;
+    }
+
+    filterReverse(fn: (value: T, index: number) => boolean): SinglyLinkedList<T> {
+        const list = new SinglyLinkedList<T>();
+        for (const [i, v] of this.entriesReverse()) {
+            if (fn(v, i)) list.insertAtTail(v);
+        }
+        return list;
     }
 
     *take(n: number): IterableIterator<T> {
-        let i = 0;
-        for (const v of this) {
-            if (i++ >= n) break;
+        for (const [i, v] of this.entries()) {
+            if (i >= n) break;
+            yield v;
+        }
+    }
+
+    *takeReverse(n: number): IterableIterator<T> {
+        for (const [i, v] of this.entriesReverse()) {
+            if (i >= n) break;
             yield v;
         }
     }
 
     *drop(n: number): IterableIterator<T> {
-        let i = 0;
-        for (const v of this) {
-            if (i++ < n) continue;
+        for (const [i, v] of this.entries()) {
+            if (i < n) continue;
+            yield v;
+        }
+    }
+
+    *dropReverse(n: number): IterableIterator<T> {
+        for (const [i, v] of this.entriesReverse()) {
+            if (i < n) continue;
             yield v;
         }
     }
 
     find(fn: (value: T, index: number) => boolean): T | undefined {
-        let i = 0;
-        for (const v of this) if (fn(v, i++)) return v;
+        for (const [i, v] of this.entries()) if (fn(v, i)) return v;
+        return undefined;
+    }
+
+    findReverse(fn: (value: T, index: number) => boolean): T | undefined {
+        for (const [i, v] of this.entriesReverse()) if (fn(v, i)) return v;
         return undefined;
     }
 
     every(fn: (value: T, index: number) => boolean): boolean {
-        let i = 0;
-        for (const v of this) if (!fn(v, i++)) return false;
+        for (const [i, v] of this.entries()) {
+            if (!fn(v, i)) return false;
+        }
+        return true;
+    }
+
+    everyReverse(fn: (value: T, index: number) => boolean): boolean {
+        for (const [i, v] of this.entriesReverse()) {
+            if (!fn(v, i)) return false;
+        }
         return true;
     }
 
     some(fn: (value: T, index: number) => boolean): boolean {
-        let i = 0;
-        for (const v of this) if (fn(v, i++)) return true;
+        for (const [i, v] of this.entries()) {
+            if (fn(v, i)) return true;
+        }
+        return false;
+    }
+
+    someReverse(fn: (value: T, index: number) => boolean): boolean {
+        for (const [i, v] of this.entriesReverse()) {
+            if (fn(v, i)) return true;
+        }
         return false;
     }
 
