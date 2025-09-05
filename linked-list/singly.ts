@@ -21,7 +21,7 @@ export class SinglyLinkedList<T> implements ILinkedList<T, SinglyNode<T>> {
     }
 
     get head(): SinglyNode<T> | undefined {
-        return this.head;
+        return this._head;
     }
 
     protected set head(value: SinglyNode<T> | undefined) {
@@ -41,7 +41,7 @@ export class SinglyLinkedList<T> implements ILinkedList<T, SinglyNode<T>> {
     }
 
     protected set length(value: number) {
-        this.length = value;
+        this._length = value;
     }
 
     insertAtHead(value: T): void {
@@ -244,20 +244,13 @@ export class SinglyLinkedList<T> implements ILinkedList<T, SinglyNode<T>> {
     }
 
     *entries(): IterableIterator<[number, T]> {
-        let index = 0;
-        let current = this.head;
-        while (current) {
-            yield [index, current.value];
-            current = current.next;
-            index++;
-        }
+        let i = 0;
+        for (const v of this) yield [i++, v];
     }
 
     *entriesReverse(): IterableIterator<[number, T]> {
-        const all = [...this.entries()];
-        for (let i = all.length - 1; i >= 0; i--) {
-            yield all[i];
-        }
+        let i = this.length;
+        for (const v of this.reverse()) yield [i--, v];
     }
 
     forEach(fn: (value: T, index: number) => void): void {

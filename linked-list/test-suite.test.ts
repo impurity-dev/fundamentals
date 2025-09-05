@@ -31,7 +31,7 @@ const indices = fc.oneof(fc.constant(-1), fc.constant(0), fc.integer({ min: 1, m
 
 const assertAll = (actual: ILinkedList<SafeAny>, expected: Array<SafeAny>) => {
     const reverseExpected = [...expected].reverse();
-    assertEquals(actual.size(), expected.length, 'size does not match');
+    assertEquals(actual.length, expected.length, 'length does not match');
     assertEquals(actual.isEmpty(), expected.length === 0, 'isEmpty does not match');
     assertEquals(actual.toArray().length, expected.length, 'toArray does not match');
     assertEquals(Array.from([...actual]), expected, 'iterator does not match');
