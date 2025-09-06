@@ -27,10 +27,12 @@ const comparators = [
     (a: SafeAny, b: SafeAny) => typeof a === 'number' && typeof b === 'number' && Math.abs(a - b) < 1e-6, // fuzzy numbers
 ];
 const safeArray = fc.array(safeAny, { maxLength });
-const indices = fc.oneof(fc.constant(-1), fc.constant(0), fc.integer({ min: 1, max: maxLength - 1 }), fc.constant(maxLength), fc.constant(maxLength + 1));
+const indices = fc.integer({ min: -1, max: maxLength + 1 });
 
 const assertAll = (actual: ILinkedList<SafeAny>, expected: Array<SafeAny>) => {
     const reverseExpected = [...expected].reverse();
+    if (actual.head) assertEquals(actual.head.value, expected[0]);
+    if (actual.tail) assertEquals(actual.tail.value, expected[expected.length - 1]);
     assertEquals(actual.length, expected.length, 'length does not match');
     assertEquals(actual.isEmpty(), expected.length === 0, 'isEmpty does not match');
     assertEquals(actual.toArray().length, expected.length, 'toArray does not match');
@@ -44,7 +46,20 @@ const assertAll = (actual: ILinkedList<SafeAny>, expected: Array<SafeAny>) => {
 };
 
 export const run = (name: string, createList: (initial: SafeAny[]) => ILinkedList<SafeAny>) => {
-    Deno.test(name, async (t) => {
+    constructor(name, createList);
+    insertAtHead(name, createList);
+    insertAtTail(name, createList);
+    insertAt(name, createList);
+    insertAtReverse(name, createList);
+    removeAtHead(name, createList);
+    removeAtTail(name, createList);
+    removeAt(name, createList);
+    get(name, createList);
+    contains(name, createList);
+};
+
+const constructor = (name: string, createList: (initial: SafeAny[]) => ILinkedList<SafeAny>) => {
+    Deno.test(`[${name}] new ${name}([values])`, async (t) => {
         await t.step('should initialize', () => {
             fc.assert(
                 fc.property(safeArray, (items) => {
@@ -55,6 +70,30 @@ export const run = (name: string, createList: (initial: SafeAny[]) => ILinkedLis
                 }),
                 { verbose },
             );
+        });
+    });
+};
+
+const insertAtHead = (name: string, createList: (initial: SafeAny[]) => ILinkedList<SafeAny>) => {
+    Deno.test(`[${name}].insertAtHead(value)`, async (t) => {
+        await t.step('should insert at head when empty', () => {
+            const initial: number[] = [];
+            const actual = createList(initial);
+
+            actual.insertAtHead(1);
+
+            const expected = [1];
+            assertAll(actual, expected);
+        });
+
+        await t.step('should insert at head not empty', () => {
+            const initial: number[] = [1];
+            const actual = createList(initial);
+
+            actual.insertAtHead(2);
+
+            const expected = [2, 1];
+            assertAll(actual, expected);
         });
 
         await t.step('should insert at head', () => {
@@ -70,6 +109,30 @@ export const run = (name: string, createList: (initial: SafeAny[]) => ILinkedLis
                 { verbose },
             );
         });
+    });
+};
+
+const insertAtTail = (name: string, createList: (initial: SafeAny[]) => ILinkedList<SafeAny>) => {
+    Deno.test(`[${name}].insertAtTail(value)`, async (t) => {
+        await t.step('should insert at tail when empty', () => {
+            const initial: number[] = [];
+            const actual = createList(initial);
+
+            actual.insertAtTail(1);
+
+            const expected = [1];
+            assertAll(actual, expected);
+        });
+
+        await t.step('should insert at tail not empty', () => {
+            const initial: number[] = [1];
+            const actual = createList(initial);
+
+            actual.insertAtTail(2);
+
+            const expected = [1, 2];
+            assertAll(actual, expected);
+        });
 
         await t.step('should insert at tail', () => {
             fc.assert(
@@ -83,6 +146,44 @@ export const run = (name: string, createList: (initial: SafeAny[]) => ILinkedLis
                 }),
                 { verbose },
             );
+        });
+    });
+};
+
+const insertAt = (name: string, createList: (initial: SafeAny[]) => ILinkedList<SafeAny>) => {
+    Deno.test(`[${name}].insertAt(index, value)`, async (t) => {
+        await t.step('should throw if insert at index < 0', () => {
+            const initial: number[] = [];
+            const actual = createList(initial);
+
+            assertThrows(() => actual.insertAt(-1, 1), 'negative index didnt throw');
+        });
+
+        await t.step('should throw if insert at index > length', () => {
+            const initial: number[] = [];
+            const actual = createList(initial);
+
+            assertThrows(() => actual.insertAt(1, 1), 'overflow index didnt throw');
+        });
+
+        await t.step('should insert at head if insert at index == 0', () => {
+            const initial: number[] = [];
+            const actual = createList(initial);
+
+            actual.insertAt(0, 1);
+
+            const expected = [1];
+            assertAll(actual, expected);
+        });
+
+        await t.step('should insert at tail if insert at index == length', () => {
+            const initial: number[] = [1];
+            const actual = createList(initial);
+
+            actual.insertAt(1, 2);
+
+            const expected = [1, 2];
+            assertAll(actual, expected);
         });
 
         await t.step('should insert at', () => {
@@ -107,6 +208,96 @@ export const run = (name: string, createList: (initial: SafeAny[]) => ILinkedLis
                 { verbose },
             );
         });
+    });
+};
+
+const insertAtReverse = (name: string, createList: (initial: SafeAny[]) => ILinkedList<SafeAny>) => {
+    Deno.test(`[${name}].insertAtReverse(index, value)`, async (t) => {
+        await t.step('should throw if insert at reverse index < 0', () => {
+            const initial: number[] = [];
+            const actual = createList(initial);
+
+            assertThrows(() => actual.insertAtReverse(-1, 1), 'negative index didnt throw');
+        });
+
+        await t.step('should throw if insert at reverse index > length', () => {
+            const initial: number[] = [];
+            const actual = createList(initial);
+
+            assertThrows(() => actual.insertAtReverse(1, 1), 'overflow index didnt throw');
+        });
+
+        await t.step('should insert at tail if insert reverse at index == 0', () => {
+            const initial: number[] = [];
+            const actual = createList(initial);
+
+            actual.insertAtReverse(0, 1);
+
+            const expected = [1];
+            assertAll(actual, expected);
+        });
+
+        await t.step('should insert at head if insert reverse at index == length', () => {
+            const initial: number[] = [1];
+            const actual = createList(initial);
+
+            actual.insertAtReverse(1, 2);
+
+            const expected = [2, 1];
+            assertAll(actual, expected);
+        });
+
+        await t.step('should insert at reverse', () => {
+            fc.assert(
+                fc.property(
+                    safeArray,
+                    indices,
+                    safeAny,
+                    (initial, index, value) => {
+                        const actual = createList(initial);
+                        const expected = [...initial];
+                        const reverseIndex = actual.length - index;
+                        if (reverseIndex < 0 || reverseIndex > expected.length) {
+                            assertThrows(() => actual.insertAtReverse(index, value), 'insertAtReverse did not throw when out of bounds');
+                            assertAll(actual, expected);
+                        } else {
+                            actual.insertAtReverse(index, value);
+                            expected.splice(reverseIndex, 0, value);
+                            assertAll(actual, expected);
+                        }
+                    },
+                ),
+                { verbose },
+            );
+        });
+    });
+};
+
+const removeAtHead = (name: string, createList: (initial: SafeAny[]) => ILinkedList<SafeAny>) => {
+    Deno.test(`[${name}].removeAtHead()`, async (t) => {
+        await t.step('should remove nothing at head when empty', () => {
+            const initial: number[] = [];
+            const actual = createList(initial);
+
+            const actualRemoved = actual.removeAtHead();
+
+            const expectedRemoved = undefined;
+            const expected = [...initial];
+            assertEquals(actualRemoved, expectedRemoved);
+            assertAll(actual, expected);
+        });
+
+        await t.step('should remove at head if size 1', () => {
+            const initial: number[] = [1];
+            const actual = createList(initial);
+
+            const actualRemoved = actual.removeAtHead();
+
+            const expectedRemoved = 1;
+            const expected: number[] = [];
+            assertEquals(actualRemoved, expectedRemoved);
+            assertAll(actual, expected);
+        });
 
         await t.step('should remove at head', () => {
             fc.assert(
@@ -130,7 +321,11 @@ export const run = (name: string, createList: (initial: SafeAny[]) => ILinkedLis
                 { verbose },
             );
         });
+    });
+};
 
+const removeAtTail = (name: string, createList: (initial: SafeAny[]) => ILinkedList<SafeAny>) => {
+    Deno.test(`[${name}].removeAtTail()`, async (t) => {
         await t.step('should remove at tail', () => {
             fc.assert(
                 fc.property(safeArray, fc.integer({ min: 1, max: 25 }), (initial, numberOfRemoves) => {
@@ -153,7 +348,11 @@ export const run = (name: string, createList: (initial: SafeAny[]) => ILinkedLis
                 { verbose },
             );
         });
+    });
+};
 
+const removeAt = (name: string, createList: (initial: SafeAny[]) => ILinkedList<SafeAny>) => {
+    Deno.test(`[${name}].removeAt(index, value)`, async (t) => {
         await t.step('should remove at', () => {
             fc.assert(
                 fc.property(
@@ -176,7 +375,11 @@ export const run = (name: string, createList: (initial: SafeAny[]) => ILinkedLis
                 { verbose },
             );
         });
+    });
+};
 
+const get = (name: string, createList: (initial: SafeAny[]) => ILinkedList<SafeAny>) => {
+    Deno.test(`[${name}].get(index)`, async (t) => {
         await t.step('should get', () => {
             fc.assert(
                 fc.property(
@@ -198,7 +401,11 @@ export const run = (name: string, createList: (initial: SafeAny[]) => ILinkedLis
                 { verbose },
             );
         });
+    });
+};
 
+const contains = (name: string, createList: (initial: SafeAny[]) => ILinkedList<SafeAny>) => {
+    Deno.test(`[${name}].contains(value, comparator)`, async (t) => {
         await t.step('should contains', () => {
             fc.assert(
                 fc.property(

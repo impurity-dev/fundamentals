@@ -86,7 +86,7 @@ export class DoublyLinkedList<T> implements ILinkedList<T, DoublyNode<T>> {
     }
 
     insertAtReverse(index: number, value: T): void {
-        this.insertAt(this.length - 1 - index, value);
+        this.insertAt(this.length - index, value);
     }
 
     removeAtHead(): T | undefined {
@@ -139,7 +139,7 @@ export class DoublyLinkedList<T> implements ILinkedList<T, DoublyNode<T>> {
     }
 
     removeAtReverse(index: number): T | undefined {
-        return this.removeAt(this.length - 1 - index);
+        return this.removeAt(this.length - index);
     }
 
     get(index: number): T | undefined {
@@ -158,7 +158,7 @@ export class DoublyLinkedList<T> implements ILinkedList<T, DoublyNode<T>> {
     }
 
     getReverse(index: number): T | undefined {
-        return this.get(this.length - 1 - index);
+        return this.get(this.length - index);
     }
 
     contains(value: T, comparator: Comparator<T> = (a: T, b: T) => a === b): boolean {

@@ -8,17 +8,18 @@
         "dev": "deno run --watch main.ts",
         "test": "deno test --coverage=./coverage"
     },
+    "workspace": ["./algorithm", "./core", "./graph", "./linked-list", "./queue", "./stack", "./tree"],
     "test": {
         "exclude": ["**/test-suite.test.ts"]
     },
     "imports": {
-        "@algorithm/": "./src/algorithm/",
-        "@graph/": "./src/graph/",
-        "@linked-list/": "./src/linked-list/",
-        "@queue/": "./src/queue/",
-        "@shared/": "./src/shared/",
-        "@stack/": "./src/stack/",
-        "@tree/": "./src/tree/",
+        "@algorithm/": "./algorithm/",
+        "@graph/": "./graph/",
+        "@linked-list/": "./linked-list/",
+        "@queue/": "./queue/",
+        "@core/": "./core/",
+        "@stack/": "./stack/",
+        "@tree/": "./tree/",
         "@std/assert": "jsr:@std/assert@1",
         "fast-check": "npm:fast-check@^4.2.0"
     },

@@ -1,4 +1,4 @@
-import type { Comparator, Sorter } from '../shared/utils.ts';
+import type { Comparator, Sorter } from '@core/utils.ts';
 import type { ILinkedList } from './linked-list.ts';
 
 export class SinglyNode<T> {
@@ -86,7 +86,7 @@ export class SinglyLinkedList<T> implements ILinkedList<T, SinglyNode<T>> {
     }
 
     insertAtReverse(index: number, value: T): void {
-        this.insertAt(this.length - 1 - index, value);
+        this.insertAt(this.length - index, value);
     }
 
     removeAtHead(): T | undefined {
@@ -139,7 +139,7 @@ export class SinglyLinkedList<T> implements ILinkedList<T, SinglyNode<T>> {
     }
 
     removeAtReverse(index: number): T | undefined {
-        return this.removeAt(this.length - 1 - index);
+        return this.removeAt(this.length - index);
     }
 
     get(index: number): T | undefined {
@@ -153,7 +153,7 @@ export class SinglyLinkedList<T> implements ILinkedList<T, SinglyNode<T>> {
     }
 
     getReverse(index: number): T | undefined {
-        return this.get(this.length - 1 - index);
+        return this.get(this.length - index);
     }
 
     contains(value: T, comparator: Comparator<T> = (a: T, b: T) => a === b): boolean {

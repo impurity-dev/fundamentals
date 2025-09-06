@@ -100,7 +100,7 @@ export class CircularDoublyLinkedList<T> implements ILinkedList<T, CircularDoubl
     }
 
     insertAtReverse(index: number, value: T): void {
-        this.insertAt(this.length - 1 - index, value);
+        this.insertAt(this.length - index, value);
     }
 
     removeAtHead(): T | undefined {
@@ -157,7 +157,7 @@ export class CircularDoublyLinkedList<T> implements ILinkedList<T, CircularDoubl
     }
 
     removeAtReverse(index: number): T | undefined {
-        return this.removeAt(this.length - 1 - index);
+        return this.removeAt(this.length - index);
     }
 
     get(index: number): T | undefined {
@@ -176,7 +176,7 @@ export class CircularDoublyLinkedList<T> implements ILinkedList<T, CircularDoubl
     }
 
     getReverse(index: number): T | undefined {
-        return this.get(this.length - 1 - index);
+        return this.get(this.length - index);
     }
 
     contains(value: T, comparator: Comparator<T> = (a: T, b: T) => a === b): boolean {
