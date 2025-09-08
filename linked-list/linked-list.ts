@@ -1,4 +1,4 @@
-import type { Comparator, Sorter } from '../shared/utils.ts';
+import type { Comparator, Sorter } from '@core/utils.ts';
 
 /**
  * Represents a generic, indexable, and iterable linked list with support for forward and reverse operations.

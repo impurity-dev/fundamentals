@@ -1,4 +1,4 @@
-import type { Comparator, Sorter } from '../shared/utils.ts';
+import type { Comparator, Sorter } from '@core/utils.ts';
 import type { ILinkedList } from './linked-list.ts';
 
 export class CircularSinglyNode<T> {

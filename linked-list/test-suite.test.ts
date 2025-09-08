@@ -31,8 +31,8 @@ const indices = fc.integer({ min: -1, max: maxLength + 1 });
 
 const assertAll = (actual: ILinkedList<SafeAny>, expected: Array<SafeAny>) => {
     const reverseExpected = [...expected].reverse();
-    if (actual.head) assertEquals(actual.head.value, expected[0]);
-    if (actual.tail) assertEquals(actual.tail.value, expected[expected.length - 1]);
+    if (actual.head) assertEquals(actual.head.value, expected[0], 'head does not match');
+    if (actual.tail) assertEquals(actual.tail.value, expected[expected.length - 1], 'tail does not match');
     assertEquals(actual.length, expected.length, 'length does not match');
     assertEquals(actual.isEmpty(), expected.length === 0, 'isEmpty does not match');
     assertEquals(actual.toArray().length, expected.length, 'toArray does not match');
@@ -42,7 +42,7 @@ const assertAll = (actual: ILinkedList<SafeAny>, expected: Array<SafeAny>) => {
         assertEquals(actual.contains(item), true, 'contains does not match');
         assertEquals(actual.get(index), item, 'get does not match');
     });
-    assertEquals(actual, actual.clone());
+    assertEquals(actual, actual.clone(), 'clone does not match');
 };
 
 export const run = (name: string, createList: (initial: SafeAny[]) => ILinkedList<SafeAny>) => {
