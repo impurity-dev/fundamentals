@@ -1,1 +1,1 @@
-export * from './sort.ts';
+export * from './bubble-sort.ts';

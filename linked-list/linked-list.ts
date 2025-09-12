@@ -1,4 +1,4 @@
-import type { Comparator, Sorter } from '@core/utils.ts';
+import type { Comparator, ICollection, Sorter } from '@core/utils.ts';
 
 /**
  * Represents a generic, indexable, and iterable linked list with support for forward and reverse operations.
@@ -6,7 +6,7 @@ import type { Comparator, Sorter } from '@core/utils.ts';
  * @typeParam T - Type of elements stored in the linked list.
  * @typeParam K - Type used as the key or index for nodes.
  */
-export interface ILinkedList<T, K extends { value: T } = { value: T }> extends Iterable<T> {
+export interface ILinkedList<T, K extends { value: T } = { value: T }> extends ICollection<T, number, ILinkedList<any, any>> {
     /**
      * Gets the key of the head node, or `undefined` if the list is empty.
      * @returns The key of the head node, or undefined if empty.

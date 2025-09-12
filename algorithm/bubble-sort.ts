@@ -13,7 +13,7 @@ import type { Sorter } from '@core/utils.ts';
  * bubbleSort([3, 1, 2]); // returns [1, 2, 3]
  * ```
  */
-export function bubbleSort<T>(
+export function sort<T>(
     arr: T[],
     comparator: Sorter<T> = (a: T, b: T) => (a > b ? 1 : a < b ? -1 : 0),
 ): T[] {
