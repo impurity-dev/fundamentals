@@ -92,10 +92,6 @@ export class CircularSinglyLinkedList<T> implements LinkedList<T, CircularSingly
         this.length++;
     }
 
-    insertAtReverse(index: number, value: T): void {
-        this.insertAt(this.length - index, value);
-    }
-
     removeAtHead(): T | undefined {
         if (!this.head || !this.tail) {
             return undefined;
@@ -146,10 +142,6 @@ export class CircularSinglyLinkedList<T> implements LinkedList<T, CircularSingly
         return value;
     }
 
-    removeAtReverse(index: number): T | undefined {
-        return this.removeAt(this.length - index);
-    }
-
     get(index: number): T | undefined {
         if (!this.head || index < 0 || index >= this.length) throw new RangeError('Index out of bounds');
         let current = this.head;
@@ -157,10 +149,6 @@ export class CircularSinglyLinkedList<T> implements LinkedList<T, CircularSingly
             current = current.next;
         }
         return current.value;
-    }
-
-    getReverse(index: number): T | undefined {
-        return this.get(this.length - index);
     }
 
     contains(value: T, comparator: Comparator<T> = (a: T, b: T) => a === b): boolean {
@@ -172,23 +160,10 @@ export class CircularSinglyLinkedList<T> implements LinkedList<T, CircularSingly
         return false;
     }
 
-    containsReverse(value: T, comparator: Comparator<T> = (a: T, b: T) => a === b): boolean {
-        for (const v of this.reverse()) {
-            if (comparator(v, value)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     sort(comparator: Sorter<T> = (a: T, b: T) => a < b ? -1 : a > b ? 1 : 0): void {
+        const values = [...this];
         this.clear();
-        [...this].sort(comparator).forEach((v) => this.insertAtTail(v));
-    }
-
-    sortReverse(comparator: Sorter<T> = (a: T, b: T) => a < b ? -1 : a > b ? 1 : 0): void {
-        this.clear();
-        [...this].sort(comparator).forEach((v) => this.insertAtTail(v));
+        values.sort(comparator).forEach((v) => this.insertAtTail(v));
     }
 
     sorted(comparator: Sorter<T> = (a: T, b: T) => a < b ? -1 : a > b ? 1 : 0): CircularSinglyLinkedList<T> {
@@ -197,26 +172,12 @@ export class CircularSinglyLinkedList<T> implements LinkedList<T, CircularSingly
         return list;
     }
 
-    sortedReverse(comparator: Sorter<T> = (a: T, b: T) => a < b ? -1 : a > b ? 1 : 0): CircularSinglyLinkedList<T> {
-        const list = this.clone();
-        list.sortReverse(comparator);
-        return list;
-    }
-
     isEmpty(): boolean {
         return this.length === 0;
     }
 
-    size(): number {
-        return this.length;
-    }
-
     toArray(): T[] {
         return [...this];
-    }
-
-    toArrayReverse(): T[] {
-        return [...this.reverse()];
     }
 
     clear(): void {
@@ -233,20 +194,10 @@ export class CircularSinglyLinkedList<T> implements LinkedList<T, CircularSingly
         yield* this;
     }
 
-    *valuesReverse(): IterableIterator<T> {
-        yield* this.reverse();
-    }
-
     *keys(): IterableIterator<number> {
         let i = 0;
         for (const _ of this) {
             yield i++;
-        }
-    }
-
-    *keysReverse(): IterableIterator<number> {
-        for (let i = this.length - 1; i >= 0; i--) {
-            yield i;
         }
     }
 
@@ -255,19 +206,8 @@ export class CircularSinglyLinkedList<T> implements LinkedList<T, CircularSingly
         for (const v of this) yield [i++, v];
     }
 
-    *entriesReverse(): IterableIterator<[number, T]> {
-        let i = this.length;
-        for (const v of this.reverse()) yield [i--, v];
-    }
-
     forEach(fn: (value: T, index: number) => void): void {
         for (const [i, v] of this.entries()) {
-            fn(v, i);
-        }
-    }
-
-    forEachReverse(fn: (value: T, index: number) => void): void {
-        for (const [i, v] of this.entriesReverse()) {
             fn(v, i);
         }
     }
@@ -275,14 +215,6 @@ export class CircularSinglyLinkedList<T> implements LinkedList<T, CircularSingly
     map<U>(fn: (value: T, index: number) => U): CircularSinglyLinkedList<U> {
         const list = new CircularSinglyLinkedList<U>();
         for (const [i, v] of this.entries()) {
-            list.insertAtTail(fn(v, i));
-        }
-        return list;
-    }
-
-    mapReverse<U>(fn: (value: T, index: number) => U): CircularSinglyLinkedList<U> {
-        const list = new CircularSinglyLinkedList<U>();
-        for (const [i, v] of this.entriesReverse()) {
             list.insertAtTail(fn(v, i));
         }
         return list;
@@ -296,25 +228,9 @@ export class CircularSinglyLinkedList<T> implements LinkedList<T, CircularSingly
         return acc;
     }
 
-    reduceReverse<U>(fn: (acc: U, value: T, index: number) => U, init: U): U {
-        let acc = init;
-        for (const [i, v] of this.entriesReverse()) {
-            acc = fn(acc, v, i);
-        }
-        return acc;
-    }
-
     filter(fn: (value: T, index: number) => boolean): CircularSinglyLinkedList<T> {
         const list = new CircularSinglyLinkedList<T>();
         for (const [i, v] of this.entries()) {
-            if (fn(v, i)) list.insertAtTail(v);
-        }
-        return list;
-    }
-
-    filterReverse(fn: (value: T, index: number) => boolean): CircularSinglyLinkedList<T> {
-        const list = new CircularSinglyLinkedList<T>();
-        for (const [i, v] of this.entriesReverse()) {
             if (fn(v, i)) list.insertAtTail(v);
         }
         return list;
@@ -327,22 +243,8 @@ export class CircularSinglyLinkedList<T> implements LinkedList<T, CircularSingly
         }
     }
 
-    *takeReverse(n: number): IterableIterator<T> {
-        for (const [i, v] of this.entriesReverse()) {
-            if (i >= n) break;
-            yield v;
-        }
-    }
-
     *drop(n: number): IterableIterator<T> {
         for (const [i, v] of this.entries()) {
-            if (i < n) continue;
-            yield v;
-        }
-    }
-
-    *dropReverse(n: number): IterableIterator<T> {
-        for (const [i, v] of this.entriesReverse()) {
             if (i < n) continue;
             yield v;
         }
@@ -353,11 +255,6 @@ export class CircularSinglyLinkedList<T> implements LinkedList<T, CircularSingly
         return undefined;
     }
 
-    findReverse(fn: (value: T, index: number) => boolean): T | undefined {
-        for (const [i, v] of this.entriesReverse()) if (fn(v, i)) return v;
-        return undefined;
-    }
-
     every(fn: (value: T, index: number) => boolean): boolean {
         for (const [i, v] of this.entries()) {
             if (!fn(v, i)) return false;
@@ -365,22 +262,8 @@ export class CircularSinglyLinkedList<T> implements LinkedList<T, CircularSingly
         return true;
     }
 
-    everyReverse(fn: (value: T, index: number) => boolean): boolean {
-        for (const [i, v] of this.entriesReverse()) {
-            if (!fn(v, i)) return false;
-        }
-        return true;
-    }
-
     some(fn: (value: T, index: number) => boolean): boolean {
         for (const [i, v] of this.entries()) {
-            if (fn(v, i)) return true;
-        }
-        return false;
-    }
-
-    someReverse(fn: (value: T, index: number) => boolean): boolean {
-        for (const [i, v] of this.entriesReverse()) {
             if (fn(v, i)) return true;
         }
         return false;

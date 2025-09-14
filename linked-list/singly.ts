@@ -149,8 +149,9 @@ export class SinglyLinkedList<T> implements LinkedList<T, SinglyNode<T>> {
     }
 
     sort(comparator: Sorter<T> = (a: T, b: T) => a < b ? -1 : a > b ? 1 : 0): void {
+        const values = [...this];
         this.clear();
-        [...this].sort(comparator).forEach((v) => this.insertAtTail(v));
+        values.sort(comparator).forEach((v) => this.insertAtTail(v));
     }
 
     sorted(comparator: Sorter<T> = (a: T, b: T) => a < b ? -1 : a > b ? 1 : 0): SinglyLinkedList<T> {

@@ -1,6 +1,6 @@
-import type { ICollection } from '@core/mod.ts';
+import type { Collection } from '@core/mod.ts';
 
-export interface IQueue<T> extends ICollection<T, number> {
+export interface IQueue<T> extends Collection<T, number> {
     enqueue(item: T): void;
     dequeue(): T | undefined;
     peek(): T | undefined;

@@ -1,8 +1,11 @@
-import type { Comparator } from '@core/mod.ts';
+import type { Collection, Comparator, Sorter } from '../core/utils.ts';
 import { type IBoundedQueue, type IQueue, QueueOverflowError } from './queue.ts';
-import type { Sorter } from '@core/mod.ts';
 
 export class FifoQueue<T> implements IQueue<T> {
+    get length(): number {
+        throw new Error('Method not implemented.');
+    }
+
     protected queue: Array<T> = [];
 
     enqueue(item: T): void {
@@ -31,6 +34,75 @@ export class FifoQueue<T> implements IQueue<T> {
 
     clear(): void {
         this.queue = [];
+    }
+
+    get(index: number): T | undefined {
+        if (index < 0 || index >= this.length) throw new RangeError('Index out of bounds');
+        return this.queue[index];
+    }
+
+    contains(item: T, comparator: Comparator<T> = (a: T, b: T) => a === b): boolean {
+        return this.queue.some((value) => comparator(item, value));
+    }
+
+    sort(sorter?: Sorter<T> | undefined): void {
+        throw new Error('Method not implemented.');
+    }
+
+    values(): IterableIterator<T> {
+        throw new Error('Method not implemented.');
+    }
+
+    keys(): IterableIterator<number> {
+        throw new Error('Method not implemented.');
+    }
+
+    entries(): IterableIterator<[number, T]> {
+        throw new Error('Method not implemented.');
+    }
+
+    forEach(fn: (value: T, index: number) => void): void {
+        throw new Error('Method not implemented.');
+    }
+
+    reduce<U>(fn: (acc: U, value: T, index: number) => U, init: U): U {
+        throw new Error('Method not implemented.');
+    }
+
+    take(n: number): IterableIterator<T> {
+        throw new Error('Method not implemented.');
+    }
+
+    drop(n: number): IterableIterator<T> {
+        throw new Error('Method not implemented.');
+    }
+
+    find(fn: (value: T, index: number) => boolean): T | undefined {
+        throw new Error('Method not implemented.');
+    }
+
+    every(fn: (value: T, index: number) => boolean): boolean {
+        throw new Error('Method not implemented.');
+    }
+
+    some(fn: (value: T, index: number) => boolean): boolean {
+        throw new Error('Method not implemented.');
+    }
+
+    clone() {
+        throw new Error('Method not implemented.');
+    }
+
+    map<U>(fn: (value: T, index: number) => U): Collection<U, unknown, any> {
+        throw new Error('Method not implemented.');
+    }
+
+    sorted(sorter?: Sorter<T> | undefined): Collection<T, number, any> {
+        throw new Error('Method not implemented.');
+    }
+
+    filter(fn: (value: T, index: number) => boolean): Collection<T, number, any> {
+        throw new Error('Method not implemented.');
     }
 
     toArray(): T[] {
