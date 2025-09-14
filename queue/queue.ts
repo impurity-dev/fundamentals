@@ -1,6 +1,6 @@
-import type { IIterable } from '@core/mod.ts';
+import type { ICollection } from '@core/mod.ts';
 
-export interface IQueue<T> extends IIterable<T, number> {
+export interface IQueue<T> extends ICollection<T, number> {
     enqueue(item: T): void;
     dequeue(): T | undefined;
     peek(): T | undefined;

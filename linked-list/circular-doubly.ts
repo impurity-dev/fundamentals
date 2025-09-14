@@ -1,5 +1,5 @@
 import type { Comparator, Sorter } from '@core/utils.ts';
-import type { ILinkedList } from './linked-list.ts';
+import type { LinkedList } from './linked-list.ts';
 
 export class CircularDoublyNode<T> {
     public readonly value: T;
@@ -13,7 +13,7 @@ export class CircularDoublyNode<T> {
     }
 }
 
-export class CircularDoublyLinkedList<T> implements ILinkedList<T, CircularDoublyNode<T>> {
+export class CircularDoublyLinkedList<T> implements LinkedList<T, CircularDoublyNode<T>> {
     private _head: CircularDoublyNode<T> | undefined = undefined;
     private _tail: CircularDoublyNode<T> | undefined = undefined;
     private _length = 0;
